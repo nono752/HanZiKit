@@ -1,0 +1,3 @@
+add_library(HanZiKit STATIC
+    lexer.cpp
+)

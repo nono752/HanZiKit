@@ -53,5 +53,24 @@
       "configuration": "Release",
       "displayName": "Build (Release)"
     }
+  ],
+  "testPresets": 
+  [
+    {
+      "name": "test-debug",
+      "displayName": "test (Debug)",
+      "configurePreset": "conf-debug",
+      "configuration": "Debug",
+      "output": 
+      {
+          "outputOnFailure": true,
+          "verbosity": "verbose"
+      },
+      "execution": 
+      {
+          "noTestsAction": "error",
+          "stopOnFailure": false
+      }
+    }
   ]
 }
