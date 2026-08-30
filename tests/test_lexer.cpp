@@ -6,7 +6,8 @@
 TEST(LexerTest, ignoreSpacesAndIdentifyWords) 
 {
     std::string source = "word1   word2";
-    Tokens tokens = tokenize(source);
+    std::vector<Error> errors;
+    Tokens tokens = tokenize(source, errors);
 
     ASSERT_EQ(tokens.size(), 2); 
     
@@ -19,8 +20,9 @@ TEST(LexerTest, ignoreSpacesAndIdentifyWords)
 
 TEST(LexerTest, chineseFormatIsCorrect) 
 {
-    std::string source = "猫 : cat\n";
-    Tokens tokens = tokenize(source);
+    std::string source = "猫 | cat\n";
+    std::vector<Error> errors;
+    Tokens tokens = tokenize(source, errors);
     
     ASSERT_EQ(tokens.size(), 4);
 
@@ -28,7 +30,7 @@ TEST(LexerTest, chineseFormatIsCorrect)
     EXPECT_EQ(tokens[0].data, "猫");
     
     EXPECT_EQ(tokens[1].type, TokenType::SPECIAL_CHAR);
-    EXPECT_EQ(tokens[1].data, ":");
+    EXPECT_EQ(tokens[1].data, "|");
     
     EXPECT_EQ(tokens[2].type, TokenType::TEXT);
     EXPECT_EQ(tokens[2].data, "cat");
@@ -39,8 +41,9 @@ TEST(LexerTest, chineseFormatIsCorrect)
 
 TEST(LexerTest, readSpecialCharacterCorrectly)
 {
-    std::string source = "#:## \n ## #";
-    Tokens tokens = tokenize(source);
+    std::string source = "#|## \n ## #";
+    std::vector<Error> errors;
+    Tokens tokens = tokenize(source, errors);
 
     ASSERT_EQ(tokens.size(), 6);
 
@@ -48,7 +51,7 @@ TEST(LexerTest, readSpecialCharacterCorrectly)
     EXPECT_EQ(tokens[0].data, "#");
 
     EXPECT_EQ(tokens[1].type, TokenType::SPECIAL_CHAR);
-    EXPECT_EQ(tokens[1].data, ":");
+    EXPECT_EQ(tokens[1].data, "|");
 
     EXPECT_EQ(tokens[2].type, TokenType::SPECIAL_CHAR);
     EXPECT_EQ(tokens[2].data, "##");
@@ -66,7 +69,8 @@ TEST(LexerTest, readSpecialCharacterCorrectly)
 TEST(LexerTest, mixedUtf8AndAsciiMakeText) 
 {
     std::string source = "Apple苹果";
-    Tokens tokens = tokenize(source);
+    std::vector<Error> errors;
+    Tokens tokens = tokenize(source, errors);
 
     ASSERT_EQ(tokens.size(), 1);
     
@@ -77,7 +81,8 @@ TEST(LexerTest, mixedUtf8AndAsciiMakeText)
 TEST(LexerTest, registerUnknownCharacters) 
 {
     std::string source = "cat $ 猫";
-    Tokens tokens = tokenize(source);
+    std::vector<Error> errors;
+    Tokens tokens = tokenize(source, errors);
 
     ASSERT_EQ(tokens.size(), 3);
     EXPECT_EQ(tokens[1].type, TokenType::UNKNOWN_CHAR);
@@ -87,6 +92,7 @@ TEST(LexerTest, registerUnknownCharacters)
 TEST(LexerTest, nullStringIsSupported) 
 {
     std::string source = "";
-    Tokens tokens = tokenize(source);
+    std::vector<Error> errors;
+    Tokens tokens = tokenize(source, errors);
     EXPECT_EQ(tokens.size(), 0);
 }

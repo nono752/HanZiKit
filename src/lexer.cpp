@@ -4,7 +4,7 @@
 #include <fstream>
 #include <string>
 
-std::string fileToString(const std::string& filepath) 
+std::string fileToString(const std::string& filepath, Errors& errors) 
 {
     std::ifstream file(filepath, std::ios::binary | std::ios::ate);
     if (!file) 
@@ -75,7 +75,7 @@ struct Reader
 
 bool isSpace(char c) { return c == ' ' || c == '\t' || c == '\r'; }
 
-Tokens tokenize(const std::string& file)
+Tokens tokenize(const std::string& file, Errors& errors)
 {
     Tokens tokens;
     Reader reader(file);
@@ -96,7 +96,7 @@ Tokens tokenize(const std::string& file)
                 tokens.push_back(reader.makeToken(TokenType::NEWLINE));
                 break;
 
-            case ':': // use fall-through for other single special char
+            case '|': // use fall-through for other single special char
                 tokens.push_back(reader.makeToken(TokenType::SPECIAL_CHAR));
                 break;
 

@@ -9,15 +9,16 @@ class Compiler
     private:
         std::string source = "";
         Tokens tokens = {};
+        std::vector<Error> errors;
     
     public:
         void loadAndTokenize(const std::string& filePath)
         {
-            source = fileToString(filePath);
-            tokens = tokenize(source);
+            source = fileToString(filePath, errors);
+            tokens = tokenize(source, errors);
         }
 
-        void _printTokens(void)
+        void _printTokens()
         {
             std::cout << "total tokens = " << tokens.size() << std::endl;
             size_t count = 0;

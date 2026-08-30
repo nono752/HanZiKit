@@ -3,7 +3,7 @@
 
 #include "types.hpp"
 
-std::string fileToString(const std::string& filepath);
-Tokens tokenize(const std::string& file);
+std::string fileToString(const std::string& filepath, Errors& errors);
+Tokens tokenize(const std::string& file, Errors& errors);
 
 #endif
