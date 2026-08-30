@@ -15,6 +15,8 @@ int main(int argc, char* argv[])
         std::string filePath = argv[1];
         compiler.loadAndTokenize(filePath);
         compiler._printTokens();
+        compiler.parseTokens();
+        compiler.printErrorsInTerminal();
         return 0;
     }
     else
