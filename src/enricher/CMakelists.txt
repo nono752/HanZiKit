@@ -1,0 +1,22 @@
+set(DICT_SOURCE "${CMAKE_SOURCE_DIR}/data/cedict_ts.u8")
+set(DICT_HEADER "${CMAKE_CURRENT_BINARY_DIR}/cedictData.hpp")
+
+set_source_files_properties(${DICT_HEADER} PROPERTIES GENERATED TRUE)
+
+add_custom_command(
+    OUTPUT ${DICT_HEADER}
+    COMMAND BinToHeader ${DICT_SOURCE} ${DICT_HEADER}
+    DEPENDS BinToHeader ${DICT_SOURCE}
+    COMMENT "Generate cedictData.hpp in current binary dir..."
+)
+
+# force HanZiKit to first construct intermediate target: GenerateDict which call custom command
+add_custom_target(GenerateDict DEPENDS ${DICT_HEADER})
+add_dependencies(HanZiKit GenerateDict)
+
+target_sources(HanZiKit PRIVATE
+    enricher.cpp
+    cedict.cpp
+)
+
+target_include_directories(HanZiKit PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include "lexer.hpp"
-#include "parser.hpp"
-#include "types.hpp"
+#include "compiler/lexer.hpp"
+#include "compiler/parser.hpp"
+#include "compiler/types.hpp"
 
 struct ParseResult 
 {

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <string>
-#include "lexer.hpp" 
-#include "types.hpp" 
+#include "compiler/lexer.hpp" 
+#include "compiler/types.hpp" 
 
 TEST(LexerTest, ignoreSpacesAndIdentifyWords) 
 {

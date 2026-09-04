@@ -13,10 +13,20 @@ int main(int argc, char* argv[])
     {
         Compiler compiler;
         std::string filePath = argv[1];
+
+        compiler.init();
+        
         compiler.loadAndTokenize(filePath);
-        compiler._printTokens();
+        //compiler._printTokens();
+
         compiler.parseTokens();
         compiler.printErrorsInTerminal();
+
+        compiler.completeAst();
+        
+        compiler.generateJSON();
+        compiler._printJSON();
+        
         return 0;
     }
     else

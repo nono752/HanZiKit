@@ -2,25 +2,7 @@
 #define PARSER_H
 
 #include "types.hpp"
-
-struct VocItem
-{
-    std::string_view hanzi;
-    std::string_view translation;
-    std::string_view pinyin;
-};
-
-struct Module
-{
-    std::string_view title;
-    std::vector<VocItem> vocItems;
-};
-
-struct MainPage
-{
-    std::string_view title;
-    std::vector<Module> modules;
-};
+#include "astTypes.hpp"
 
 class Parser 
 {

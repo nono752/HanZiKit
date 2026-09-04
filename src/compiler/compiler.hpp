@@ -1,29 +1,46 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 
+#include "types.hpp"
+#include "astTypes.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
-#include "types.hpp"
+#include "enricher/cedict.hpp"
+#include "enricher/enricher.hpp"
+#include "generator/generator.hpp"
 
 class Compiler
 {
     private:
         std::string source = "";
+        std::vector<Error> errors;
         Tokens tokens = {};
         MainPage ast;
-        std::vector<Error> errors;
+        Cedict dict;
+        std::string json = "";
 
     public:
+        void init()
+        {
+            dict.init();
+        }
         void loadAndTokenize(const std::string& filePath)
         {
             source = fileToString(filePath, errors);
             tokens = tokenize(source, errors);
         }
-        
         void parseTokens()
         {
             Parser parser(tokens, ast, errors);
             parser.parse();
+        }
+        void completeAst()
+        {
+            enrichAst(ast, dict, errors);
+        }
+        void generateJSON()
+        {
+            astToJson(ast, errors, json);
         }
 
         void printErrorsInTerminal()
@@ -84,6 +101,10 @@ class Compiler
 
                 count++;
             }
+        }
+        void _printJSON()
+        {
+            std::cout << json << std::endl;
         }
 };
 

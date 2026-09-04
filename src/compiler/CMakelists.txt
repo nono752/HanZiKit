@@ -1,0 +1,4 @@
+target_sources(HanZiKit PRIVATE
+    lexer.cpp
+    parser.cpp
+)
