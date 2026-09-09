@@ -7,7 +7,8 @@
 #include "parser.hpp"
 #include "enricher/cedict.hpp"
 #include "enricher/enricher.hpp"
-#include "generator/generator.hpp"
+#include "generator/jsonGenerator.hpp"
+#include "generator/exporter.hpp"
 
 class Compiler
 {
@@ -40,7 +41,11 @@ class Compiler
         }
         void generateJSON()
         {
-            astToJson(ast, errors, json);
+            astToJson(ast, json, errors);
+        }
+        void generateHtml()
+        {
+            exportToHtml(json, "index.html", errors);
         }
 
         void printErrorsInTerminal()

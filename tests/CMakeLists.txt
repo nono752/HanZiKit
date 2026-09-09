@@ -3,3 +3,4 @@ include(GoogleTest)
 
 add_subdirectory(compiler)
 add_subdirectory(enricher)
+add_subdirectory(generator)

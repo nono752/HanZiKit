@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HanziForge</title>
+
+  <!-- for parse usage: -->
+  <style>/* {{CSS_INJECT}} */</style>
+
+  <!-- for test usage: -->
+  <!-- link rel="stylesheet" href="style.css"-->
+</head>
+<body>
+
+  <div class="container">
+    <div id="view-hub" class="view active">
+      <div class="header">
+        <h1 id="main-title">Chargement...</h1>
+        <p id="main-subtitle" style="color: var(--text-muted);">Récupération des données...</p>
+      </div>
+
+      <h2 class="section-title">Global</h2>
+      <div class="global-actions-panel">
+        <button class="action-btn" onclick="alert('Lancement du test sur TOUT le vocabulaire')"> Test</button>
+        <button class="action-btn" onclick="alert('Génération PDF en attente')"> Export PDF</button>
+      </div>
+
+      <h2 class="section-title">Modules</h2>
+      <div class="module-grid" id="hub-grid">
+        <!-- JS generate -->
+      </div>
+    </div>
+
+    <div id="view-module" class="view">
+      <div class="nav-bar">
+        <button class="btn-back" onclick="showHub()">⬅ Retour au Hub</button>
+        <h2 id="mod-title" style="margin:0;">Titre du module</h2>
+      </div>
+
+      <div class="module-dashboard">
+        <div class="stats-panel">
+          <div class="stat-box">
+            <div class="stat-number" id="mod-count">0</div>
+            <div style="color: var(--text-muted); font-size: 0.9rem;">Mots dans la liste</div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-number" style="color: #198754;">--%</div>
+            <div style="color: var(--text-muted); font-size: 0.9rem;">Taux de réussite</div>
+          </div>
+        </div>
+
+        <h3 style="margin-top:0;">S'entraîner sur ce module</h3>
+        <div class="action-grid">
+          <button class="action-btn"> Fiches</button>
+          <button class="action-btn"> Test</button>
+          <button class="action-btn"> Tracé</button>
+        </div>
+      </div>
+
+      <h3 style="margin-top: 40px;">Liste du vocabulaire</h3>
+      <div id="mod-vocab-list" class="vocab-list">
+        <!-- JS generate -->
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script>
+    // for parse usage
+    const DECK_DATA = null /* {{JSON_INJECT}} */; // IMPORTANT: must have this form/indentation exactly and be unique.
+
+    // for test usage
+    /* 
+      const DECK_DATA = {
+      title: "HSK - 1 (Mode Dev)",
+      subtitle: "Sous-titre de test local",
+      modules: [
+        { id: 1, title: "Animaux", count: 7 },
+        { id: 2, title: "Nourriture", count: 14 }
+      ]
+      };
+    */ 
+    
+  </script>
+
+  <!-- for parse usage: -->
+  <script>/* {{JS_INJECT}} */</script>
+
+  <!-- for test usage: -->
+  <!-- <script src="app.js"></script> -->
+
+</body>
+</html>

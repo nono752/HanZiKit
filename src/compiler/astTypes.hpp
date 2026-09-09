@@ -22,6 +22,7 @@ struct VocItem
 
 struct Module
 {
+    int id = -1;
     std::string_view title;
     std::vector<VocItem> vocItems;
 };
@@ -30,6 +31,12 @@ struct MainPage
 {
     std::string_view title;
     std::vector<Module> modules;
+
+    void addModule(const std::string_view view = "", const std::vector<VocItem>& items = {})
+    {
+        size_t id = modules.size();
+        modules.push_back({static_cast<int> (id), view, items});
+    }
 };
 
 #endif

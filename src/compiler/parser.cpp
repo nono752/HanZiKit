@@ -69,7 +69,7 @@ void Parser::detectTitle(bool isMainPage)
     } 
     else 
     {
-        ast.modules.push_back({title, {}});
+        ast.addModule(title, {});
         currentModule = &ast.modules.back();
     }
 

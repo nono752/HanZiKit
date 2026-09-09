@@ -4,7 +4,7 @@
 
 extern const unsigned char cedictData[];
 extern const unsigned int cedictEntriesCount;
-extern const unsigned int cedictDataSize;
+extern const unsigned long long cedictDataSize;
 
 struct KeyCompHanzi
 {

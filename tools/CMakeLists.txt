@@ -1,0 +1,2 @@
+add_executable(BinToHeader binToHeader.cpp)
+add_executable(HtmlToHeader htmlToHeader.cpp)

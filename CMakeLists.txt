@@ -8,7 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 cmake_policy(SET CMP0076 NEW)
 
-add_executable(BinToHeader ${CMAKE_SOURCE_DIR}/tools/binToHeader.cpp)
+add_subdirectory(tools)
 
 enable_testing()
 add_subdirectory(tests)

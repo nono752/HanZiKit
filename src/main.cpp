@@ -25,8 +25,10 @@ int main(int argc, char* argv[])
         compiler.completeAst();
         
         compiler.generateJSON();
-        compiler._printJSON();
-        
+        //compiler._printJSON();
+
+        compiler.generateHtml();
+
         return 0;
     }
     else

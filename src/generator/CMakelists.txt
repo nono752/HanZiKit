@@ -1,3 +1,23 @@
-target_sources(HanZiKit PRIVATE
-    generator.cpp
+set(HTML_SOURCE "${CMAKE_SOURCE_DIR}/src/template/html/index.html")
+set(CSS_SOURCE "${CMAKE_SOURCE_DIR}/src/template/html/style.css")
+set(JS_SOURCE "${CMAKE_SOURCE_DIR}/src/template/html/app.js")
+set(HTML_TEMPLATE_HEADER "${CMAKE_CURRENT_BINARY_DIR}/htmlTemplate.hpp")
+
+set_source_files_properties(${HTML_TEMPLATE_HEADER} PROPERTIES GENERATED TRUE)
+
+add_custom_command(
+    OUTPUT ${HTML_TEMPLATE_HEADER}
+    COMMAND HtmlToHeader ${HTML_SOURCE} ${CSS_SOURCE} ${JS_SOURCE} ${HTML_TEMPLATE_HEADER}
+    DEPENDS HtmlToHeader ${HTML_SOURCE} ${CSS_SOURCE} ${JS_SOURCE}
+    COMMENT "Generate htmlTemplate.hpp in current binary dir..."
 )
+
+add_custom_target(GenerateHtmlTemplate DEPENDS ${HTML_TEMPLATE_HEADER})
+add_dependencies(HanZiKit GenerateHtmlTemplate)
+
+target_sources(HanZiKit PRIVATE
+    jsonGenerator.cpp
+    exporter.cpp
+)
+
+target_include_directories(HanZiKit PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
