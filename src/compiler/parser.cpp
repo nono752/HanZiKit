@@ -1,5 +1,6 @@
 #include "parser.hpp"
-#include "types.hpp"
+#include "tokenTypes.hpp"
+#include "error_handling/errorTypes.hpp"
 #include <string_view>
 #include <vector>
 #include <iostream>
@@ -9,15 +10,21 @@ void Parser::pushErrorAndSynchronize(ErrorCode err, std::string_view detail)
     std::string msg(detail); 
     if (msg.empty()) msg = peek() ? std::string(peek()->data) : "EOF"; 
 
-    Pos errPos;
+    unsigned line, col;
     if (!isAtEnd())
-        errPos = tokens[current].pos;
+    {
+        line = tokens[current].line;
+        col = tokens[current].col;
+    }
     else if (!tokens.empty())
-        errPos = tokens.back().pos; 
+    {
+        line = tokens.back().line;
+        col = tokens.back().col;
+    }
     else
-        errPos = {1, 1}; 
+        line = col = 1;
 
-    errors.push_back({ErrorPhase::PARSER, err, msg, errPos});
+    errors.push_back({ErrorPhase::PARSER, err, msg, line, col});
     synchronize();
 }
 

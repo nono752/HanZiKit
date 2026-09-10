@@ -17,17 +17,21 @@ int main(int argc, char* argv[])
         compiler.init();
         
         compiler.loadAndTokenize(filePath);
+        if (!compiler.printAndClearErrors()) std::cerr << "Tokens succesfully created..." << std::endl;
         //compiler._printTokens();
 
         compiler.parseTokens();
-        compiler.printErrorsInTerminal();
+        if (!compiler.printAndClearErrors()) std::cerr << "Tokens succesfully parsed..." << std::endl;
 
         compiler.completeAst();
-        
+        if (!compiler.printAndClearErrors()) std::cerr << "ast enriched succesfully..." << std::endl;
+
         compiler.generateJSON();
+        if (!compiler.printAndClearErrors()) std::cerr << "json succesfully generated..." << std::endl;
         //compiler._printJSON();
 
         compiler.generateHtml();
+        if (!compiler.printAndClearErrors()) std::cerr << "html file successfully generated..." << std::endl;
 
         return 0;
     }

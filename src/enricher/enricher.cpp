@@ -8,7 +8,11 @@ void enrichAst(MainPage& ast, const Cedict& dict, Errors& errors)
         for (VocItem& vocItem : m.vocItems)
         {
             DictEntries entries = dict.get(vocItem.hanzi);
-            if (entries.empty()) continue; // TODO GENERATE ENRICHER ERROR
+            if (entries.empty())
+            {
+                errors.push_back({ErrorPhase::ENRICHER, ErrorCode::UNKWNOWN_HANZI_ENTRY, vocItem.hanzi.data()});
+                continue;
+            } // TODO: set behavior for duoyin zi.
 
             DictEntry entry = entries[0];
             vocItem.traditional = entry.traditional;

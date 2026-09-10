@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <generator/exporter.hpp>
-#include <compiler/types.hpp>
+#include "compiler/tokenTypes.hpp" 
+#include "error_handling/errorTypes.hpp" 
 
 TEST(ExporterTest, ValidInjection)
 {

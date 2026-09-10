@@ -2,7 +2,8 @@
 #include <nlohmann/json.hpp>
 #include "generator/jsonGenerator.hpp"
 #include "compiler/parser.hpp"
-#include "compiler/types.hpp"
+#include "compiler/tokenTypes.hpp" 
+#include "error_handling/errorTypes.hpp"
 
 void generateAst(MainPage& ast)
 {

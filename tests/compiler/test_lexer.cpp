@@ -1,12 +1,13 @@
 #include <gtest/gtest.h>
 #include <string>
 #include "compiler/lexer.hpp" 
-#include "compiler/types.hpp" 
+#include "compiler/tokenTypes.hpp" 
+#include "error_handling/errorTypes.hpp" 
 
 TEST(LexerTest, ignoreSpacesAndIdentifyWords) 
 {
     std::string source = "word1   word2";
-    std::vector<Error> errors;
+    Errors errors;
     Tokens tokens = tokenize(source, errors);
 
     ASSERT_EQ(tokens.size(), 2); 
@@ -21,7 +22,7 @@ TEST(LexerTest, ignoreSpacesAndIdentifyWords)
 TEST(LexerTest, chineseFormatIsCorrect) 
 {
     std::string source = "猫 | cat\n";
-    std::vector<Error> errors;
+    Errors errors;
     Tokens tokens = tokenize(source, errors);
     
     ASSERT_EQ(tokens.size(), 4);
@@ -42,7 +43,7 @@ TEST(LexerTest, chineseFormatIsCorrect)
 TEST(LexerTest, readSpecialCharacterCorrectly)
 {
     std::string source = "#|## \n ## #";
-    std::vector<Error> errors;
+    Errors errors;
     Tokens tokens = tokenize(source, errors);
 
     ASSERT_EQ(tokens.size(), 6);
@@ -69,7 +70,7 @@ TEST(LexerTest, readSpecialCharacterCorrectly)
 TEST(LexerTest, mixedUtf8AndAsciiMakeText) 
 {
     std::string source = "Apple苹果";
-    std::vector<Error> errors;
+    Errors errors;
     Tokens tokens = tokenize(source, errors);
 
     ASSERT_EQ(tokens.size(), 1);
@@ -81,7 +82,7 @@ TEST(LexerTest, mixedUtf8AndAsciiMakeText)
 TEST(LexerTest, registerUnknownCharacters) 
 {
     std::string source = "cat $ 猫";
-    std::vector<Error> errors;
+    Errors errors;
     Tokens tokens = tokenize(source, errors);
 
     ASSERT_EQ(tokens.size(), 3);
@@ -92,7 +93,7 @@ TEST(LexerTest, registerUnknownCharacters)
 TEST(LexerTest, nullStringIsSupported) 
 {
     std::string source = "";
-    std::vector<Error> errors;
+    Errors errors;
     Tokens tokens = tokenize(source, errors);
     EXPECT_EQ(tokens.size(), 0);
 }

@@ -1,8 +1,9 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "types.hpp"
+#include "tokenTypes.hpp"
 #include "astTypes.hpp"
+#include "error_handling/errorTypes.hpp"
 
 class Parser 
 {

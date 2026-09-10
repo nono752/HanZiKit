@@ -1,30 +1,34 @@
 #include "lexer.hpp"
-#include "types.hpp"
+#include "tokenTypes.hpp"
+#include "error_handling/errorTypes.hpp"
 #include <iostream>
 #include <fstream>
 #include <string>
 
-std::string fileToString(const std::string& filepath, Errors& errors) 
+void fileToString(const std::string& filepath, std::string& toWrite, Errors& errors) 
 {
+    toWrite.clear();
     std::ifstream file(filepath, std::ios::binary | std::ios::ate);
     if (!file) 
     {
-        std::cerr << "couldn't open : " << filepath << std::endl;
-        return "";
+        errors.push_back({ErrorPhase::LEXER, ErrorCode::SOURCE_FILE_NOPEN, filepath});
+        return;
     }
 
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
     
-    std::string buffer(size, '\0');
-    if (file.read(buffer.data(), size)) 
+    toWrite.resize(size, '\0');
+    if (file.read(toWrite.data(), size)) 
     {
         file.close();
-        return buffer;
+        return;
     }
 
     file.close();
-    return "";
+    errors.push_back({ErrorPhase::LEXER, ErrorCode::STRING_BUFFER_WRITING_FAILED});
+    toWrite.clear();
+    return;
 }
 
 struct Reader
@@ -32,7 +36,8 @@ struct Reader
     size_t start = 0;
     size_t current = 0;
     std::string_view source;
-    Pos pos = {1, 1};
+    unsigned line = 1;
+    unsigned col = 1;
 
     Reader(const std::string& file) : source(file) {}
 
@@ -50,12 +55,12 @@ struct Reader
 
         if (c == '\n') 
         {
-            pos.line++;
-            pos.col = 1;
+            line++;
+            col = 1;
         } 
         else 
         {
-            pos.col++;
+            col++;
         }
         
         return c;
@@ -66,7 +71,7 @@ struct Reader
     Token makeToken(TokenType type)
     {
         std::string_view word = source.substr(start, current - start);
-        Token token = {type, word, pos};
+        Token token = {type, word, line, col};
         start = current;
 
         return token;
@@ -136,6 +141,8 @@ Tokens tokenize(const std::string& file, Errors& errors)
                 }
                 else
                 {
+                    // TODO: implement behavior when unknown char encoutered
+                    errors.push_back({ErrorPhase::LEXER, ErrorCode::UNKNOWN_CHAR_ENCOUNTERED, std::string(1, c), reader.line, reader.col});
                     tokens.push_back(reader.makeToken(TokenType::UNKNOWN_CHAR));
                 }
                 break;

@@ -1,7 +1,8 @@
 #ifndef JSON_GENERATOR_H
 #define JSON_GENERATOR_H
 
-#include "compiler/types.hpp"
+#include "compiler/tokenTypes.hpp"
+#include "error_handling/errorTypes.hpp"
 
 struct MainPage;
 

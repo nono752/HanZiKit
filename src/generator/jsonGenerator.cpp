@@ -45,4 +45,5 @@ void astToJson(const MainPage& ast, std::string& toWrite, Errors& errors)
     toWrite.clear();
     nlohmann::json json = ast;
     toWrite = json.dump(2);
+    if (toWrite.empty()) errors.push_back({ErrorPhase::JSON_GENERATION, ErrorCode::JSON_IS_EMPTY});
 }

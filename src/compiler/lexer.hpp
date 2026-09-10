@@ -1,9 +1,10 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include "types.hpp"
+#include "tokenTypes.hpp"
+#include "error_handling/errorTypes.hpp"
 
-std::string fileToString(const std::string& filepath, Errors& errors);
+void fileToString(const std::string& filepath, std::string& toWrite, Errors& errors);
 Tokens tokenize(const std::string& file, Errors& errors);
 
 #endif

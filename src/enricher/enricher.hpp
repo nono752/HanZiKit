@@ -1,7 +1,8 @@
 #ifndef ENRICHER_H
 #define ENRICHER_H
 
-#include "compiler/types.hpp"
+#include "compiler/tokenTypes.hpp"
+#include "error_handling/errorTypes.hpp"
 #include "compiler/astTypes.hpp"
 
 class Cedict;

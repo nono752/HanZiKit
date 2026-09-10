@@ -1,13 +1,14 @@
 #include <gtest/gtest.h>
 #include "compiler/lexer.hpp"
 #include "compiler/parser.hpp"
-#include "compiler/types.hpp"
+#include "compiler/tokenTypes.hpp" 
+#include "error_handling/errorTypes.hpp" 
 
 struct ParseResult 
 {
     Tokens tokens;
     MainPage ast;
-    std::vector<Error> errors;
+    Errors errors;
 };
 
 bool parseString(const std::string& source, ParseResult& context)
