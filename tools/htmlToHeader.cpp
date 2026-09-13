@@ -4,6 +4,7 @@
 #include "utils.hpp"
 
 /*
+MODIFIER ICVI
     Convert the html/css/js file into a rawstring:
         constexpr std::string_view HTML_TEMPLATE = R\"hzk_template(...)hzk_template"
 
@@ -13,36 +14,51 @@
 
 int main(int argc, char* argv[]) 
 {
-    if (argc != 5)
+    if (argc < 3)
     {
-        std::cerr << "Error: Usage: HtmlToHeader <in.html> <in.css> <in.js> <out.hpp>\n";
+        std::cerr << "ERROR: Usage: HtmlToHeader <in.html> [--css f1.css...] [--js f1.js...] <out.hpp>\n";
         printArgs(argv, argc);
         return 1;
     }
 
-    std::string htmlBuff = makeBufferFrom(argv[1]);
-    std::string cssBuff = makeBufferFrom(argv[2]);
-    std::string jsBuff = makeBufferFrom(argv[3]);
-    std::ofstream out(argv[4]);
+    std::string htmlBuff;
+    if (!makeBufferFrom(argv[1], htmlBuff))
+    {
+        std::cerr << "Error: failed to make buffer from input file\n";
+        return 1;
+    }
+    std::ofstream out(argv[argc - 1]);
+    std::string cssBuff;
+    std::string jsBuff;
+
+    enum class Mode { NONE, CSS, JS };
+    Mode currentMode = Mode::NONE;
+
+    for (int i = 2; i < argc - 1; ++i) 
+    {
+        std::string arg = argv[i];
+        
+        if (arg == "--CSS") currentMode = Mode::CSS;
+        else if (arg == "--JS") currentMode = Mode::JS;
+        else
+        {
+            std::string content;
+            makeBufferFrom(arg.data(), content);
+            if (content.empty()) std::cout << "WARNING: file '" << arg << "' empty or not readable\n";
+            
+            if (currentMode == Mode::CSS) cssBuff += content + "\n";
+            else if (currentMode == Mode::JS) jsBuff += content + "\n";
+        }
+    }
 
     if (!out)
     {
-        std::cerr << "Error: cannot open output file\n";
+        std::cerr << "ERROR: cannot open output file\n";
         return 1;
     }
-    if (htmlBuff.empty())
+    else if (htmlBuff.empty())
     {
         std::cerr << "Error: html file is empty, maybe failed to read the file\n";
-        return 1;
-    }
-    if (cssBuff.empty())
-    {
-        std::cerr << "Error: css file is empty, maybe failed to read the file\n";
-        return 1;
-    }
-    if (jsBuff.empty())
-    {
-        std::cerr << "Error: js file is empty, maybe failed to read the file\n";
         return 1;
     }
 
@@ -64,16 +80,26 @@ int main(int argc, char* argv[])
     }
     size_t jsEnd = jsBegin + jsTag.size();
 
+    std::string toCssTagHexBuff;
+    std::string cssHexBuff;
+    std::string cssTagToJsTagHexBuff;
+    std::string jsHexBuff;
+    std::string jsTagToEndHexBuff;
+
+    makeHexListString(htmlBuff.substr(0, cssBegin), toCssTagHexBuff);
+    makeHexListString(cssBuff, cssHexBuff);
+    makeHexListString(htmlBuff.substr(cssEnd, jsBegin - cssEnd), cssTagToJsTagHexBuff);
+    makeHexListString(jsBuff, jsHexBuff);
+    makeHexListString(htmlBuff.substr(jsEnd), jsTagToEndHexBuff);
+
     out << "#ifndef HTML_TEMPLATE_H\n#define HTML_TEMPLATE_H\n\n#include <string_view>\n\n";
-    out << "constexpr std::string_view HTML_TEMPLATE = R\"hzk_template(\n";
-
-    out << htmlBuff.substr(0, cssBegin);
-    out << cssBuff;
-    out << htmlBuff.substr(cssEnd, jsBegin - cssEnd);
-    out << jsBuff;
-    out << htmlBuff.substr(jsEnd);
-
-    out << "\n)hzk_template\";\n\n#endif";
+    out << "const unsigned char htmlTemplate[] = {\n";
+    out << toCssTagHexBuff;
+    out << cssHexBuff;
+    out << cssTagToJsTagHexBuff;
+    out << jsHexBuff;
+    out << jsTagToEndHexBuff;
+    out << "\n};\n\n#endif";
 
     if (out.fail())
     {

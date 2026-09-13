@@ -1,0 +1,148 @@
+@media print {
+  /* 1. Nettoyage de l'interface */
+  body { background: white; margin: 0; padding: 0; color: #2c3e50; }
+  .container { display: none !important; }
+  #print-zone { display: block !important; width: 100%; }
+
+  /* 2. Titre du document */
+  .print-title {
+    text-align: center;
+    font-size: 26pt;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-top: 0;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #ecf0f1;
+  }
+
+  /* 3. Structure du tableau */
+  .print-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12pt;
+  }
+
+  /* 4. En-têtes de colonnes (Minimalistes) */
+  .print-table th {
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 9pt;
+    color: #7f8c8d;
+    padding: 10px 15px;
+    border-bottom: 2px solid #2c3e50;
+  }
+
+  /* 5. Cellules et Lignes (Aérées, sans bordures verticales) */
+  .print-table td {
+    padding: 16px 15px;
+    border-bottom: 1px solid #ecf0f1;
+    vertical-align: middle;
+  }
+
+  /* 6. En-têtes des Modules (Intercalaires) */
+  .print-table tr.print-module-row td {
+    padding: 30px 15px 10px 15px;
+    font-size: 14pt;
+    font-weight: 700;
+    color: #0d6efd; /* Ton bleu principal */
+    border-bottom: 2px solid #0d6efd;
+    background: transparent;
+  }
+
+  /* 7. Typographie spécifique Hanzi */
+  .print-hanzi {
+    font-size: 18pt;
+    font-weight: normal;
+    font-family: "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: #000;
+    width: 25%;
+  }
+
+  /* FICHES D'ECRITURE */
+  .print-grid-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    page-break-inside: avoid; /* Empêche de couper une ligne sur deux pages A4 */
+  }
+  
+  /* Colonne d'information à gauche */
+  .print-char-info {
+    width: 90px;
+    text-align: left;
+  }
+  .print-char-info .main-char {
+    font-size: 24pt;
+    font-weight: bold;
+    line-height: 1;
+  }
+  .print-char-info .sub-pinyin {
+    font-size: 8.5pt;
+    color: #555;
+    margin-top: 2px;
+  }
+  .print-char-info .sub-trans {
+    font-size: 8pt;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Zone des cases d'écriture */
+  .tzg-container {
+    display: flex;
+    gap: 4px;
+  }
+  
+  /* La case carrée */
+  .tzg-cell {
+    width: 42px;
+    height: 42px;
+    border: 1.5px solid #222;
+    position: relative;
+    box-sizing: border-box;
+  }
+  
+  /* Croix médiane en pointillés */
+  .tzg-cell::before,
+  .tzg-cell::after {
+    content: '';
+    position: absolute;
+  }
+  /* Ligne horizontale */
+  .tzg-cell::before {
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    border-top: 1px dashed #bbb;
+  }
+  /* Ligne verticale */
+  .tzg-cell::after {
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    border-left: 1px dashed #bbb;
+  }
+  
+  /* Caractère en filigrane pour guider la main */
+  .tzg-guide {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 26pt;
+    font-family: "Kaiti SC", "STKaiti", "KaiTi", "Noto Sans CJK SC", serif;
+    color: rgba(0, 0, 0, 0.16);
+    z-index: 1;
+  }
+}
+
+/* On cache la zone d'impression sur l'écran normal */
+@media screen {
+  #print-zone { display: none; }
+}

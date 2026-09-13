@@ -23,7 +23,8 @@
       <h2 class="section-title">Global</h2>
       <div class="global-actions-panel">
         <button class="action-btn" onclick="alert('Lancement du test sur TOUT le vocabulaire')"> Test</button>
-        <button class="action-btn" onclick="alert('Génération PDF en attente')"> Export PDF</button>
+        <button class="action-btn" onclick="printGlobalVocab()"> Export PDF</button>
+        <button class="action-btn" onclick="printGlobalGrid()"> Grilles Globales</button>
       </div>
 
       <h2 class="section-title">Modules</h2>
@@ -53,6 +54,8 @@
 
         <h3 style="margin-top:0;">S'entraîner sur ce module</h3>
         <div class="action-grid">
+          <button class="action-btn" onclick="printModuleVocab()"> Imprimer Module</button>
+          <button class="action-btn" onclick="printModuleGrid()">✍️ Fiche Grille</button>
           <button class="action-btn"> Fiches</button>
           <button class="action-btn"> Test</button>
           <button class="action-btn"> Tracé</button>
@@ -68,6 +71,7 @@
 
   </div>
 
+  <div id="print-zone"></div>
 
   <script>
     // for parse usage

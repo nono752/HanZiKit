@@ -3,6 +3,8 @@
 #include <string>
 #include "htmlTemplate.hpp"
 
+extern const unsigned char htmlTemplate[];
+
 void injectJson(const std::string_view htmlBase, const std::string& json, std::string& toWrite, Errors& errors)
 {
     toWrite.clear();
@@ -45,7 +47,7 @@ bool exportToHtml(const std::string& json, const std::string& outFileName, Error
     }
   
     std::string finalContent;
-    injectJson(HTML_TEMPLATE, json, finalContent, errors);
+    injectJson(std::string_view(reinterpret_cast<const char*> (htmlTemplate)), json, finalContent, errors);
     if (finalContent.empty())
     {
         errors.push_back({ErrorPhase::HTML_EXPORTER, ErrorCode::HTML_BUFFER_WRITING_FAILED});

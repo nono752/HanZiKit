@@ -3,7 +3,7 @@
 #include <algorithm>
 
 extern const unsigned char cedictData[];
-extern const unsigned int cedictEntriesCount;
+extern const size_t cedictLinesCount;
 extern const unsigned long long cedictDataSize;
 
 struct KeyCompHanzi
@@ -45,7 +45,7 @@ DictEntries Cedict::get(std::string_view word) const
 
 void Cedict::makeEntries(std::string_view rawText)
 {
-    entries.reserve(cedictEntriesCount); 
+    entries.reserve(cedictLinesCount); 
     size_t start = 0;
     while (start < rawText.size())
     {

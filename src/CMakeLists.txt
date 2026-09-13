@@ -2,6 +2,8 @@ find_package(nlohmann_json CONFIG REQUIRED)
 
 add_library(HanZiKit STATIC "")
 
+add_subdirectory(templates)
+
 add_subdirectory(compiler)
 add_subdirectory(enricher)
 add_subdirectory(generator)

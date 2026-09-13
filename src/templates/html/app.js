@@ -29,7 +29,11 @@ function initHub()
   });
 }
 
+let currentModuleIndex = -1;
+
 function openModule(index, title, count) {
+  currentModuleIndex = index; // On mémorise le module ouvert
+
   // 1. Mise à jour de l'en-tête
   document.getElementById('mod-title').textContent = title;
   document.getElementById('mod-count').textContent = count;
@@ -64,6 +68,7 @@ function openModule(index, title, count) {
 }
 
 function showHub() {
+  currentModuleIndex = -1; // Réinitialisation
   document.getElementById('view-module').classList.remove('active');
   document.getElementById('view-hub').classList.add('active');
 }
