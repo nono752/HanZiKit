@@ -11,11 +11,13 @@
 #include "enricher/enricher.hpp"
 #include "generator/jsonGenerator.hpp"
 #include "generator/exporter.hpp"
+#include <deque>
 
 class Compiler
 {
     private:
         std::string source = "";
+        std::deque<std::string> astPool; // avoid dangling pointer in ast when resized
         Cedict dict;
         Errors errors;
         ErrorHandler errorHandler{errors};
@@ -41,7 +43,7 @@ class Compiler
         }
         void completeAst()
         {
-            enrichAst(ast, dict, errors);
+            enrichAst(ast, dict, errors, astPool);
         }
         void generateJSON()
         {
