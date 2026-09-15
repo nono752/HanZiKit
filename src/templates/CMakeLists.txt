@@ -1,12 +1,22 @@
 set(HTML_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/html/index.html")
 
 set(CSS_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/html/style.css"
+    "${CMAKE_CURRENT_SOURCE_DIR}/html/base.css"
+    "${CMAKE_CURRENT_SOURCE_DIR}/html/hub.css"
+    "${CMAKE_CURRENT_SOURCE_DIR}/html/modules.css"
     "${CMAKE_CURRENT_SOURCE_DIR}/html/print.css"
+    "${CMAKE_CURRENT_SOURCE_DIR}/html/flashCard.css"
 )
 set(JS_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/html/app.js"
-    "${CMAKE_CURRENT_SOURCE_DIR}/html/print.js"
+    # to initialise first
+    "${CMAKE_CURRENT_SOURCE_DIR}/html/external/hanziWriter.js" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/html/globals.js" 
+    
+    # dependant
+    "${CMAKE_CURRENT_SOURCE_DIR}/html/app.js" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/html/print.js" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/html/flashCard.js"
+    "${CMAKE_CURRENT_SOURCE_DIR}/html/trace.js"
 )
 
 set(HTML_TEMPLATE_HEADER "${CMAKE_CURRENT_BINARY_DIR}/htmlTemplate.hpp")

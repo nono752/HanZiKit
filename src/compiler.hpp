@@ -63,7 +63,6 @@ class Compiler
             {
                 std::cerr << "failed to print errors in log.txt ...\n";
             }
-            std::cerr << errors.size() << " errors...";
             errorHandler.printErrorInTerminal();
 
             return true;

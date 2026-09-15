@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HanziForge</title>
+  <title>HanZiKit</title>
 
   <!-- for parse usage: -->
   <style>/* {{CSS_INJECT}} */</style>
@@ -16,18 +16,18 @@
   <div class="container">
     <div id="view-hub" class="view active">
       <div class="header">
-        <h1 id="main-title">Chargement...</h1>
-        <p id="main-subtitle" style="color: var(--text-muted);">Récupération des données...</p>
+        <h1 id="main-title"> Loading...</h1>
+        <p id="main-subtitle" style="color: var(--text-muted);"> HanZiKit</p>
       </div>
 
-      <h2 class="section-title">Global</h2>
+      <h2 class="section-title"> Global</h2>
       <div class="global-actions-panel">
         <button class="action-btn" onclick="alert('Lancement du test sur TOUT le vocabulaire')"> Test</button>
-        <button class="action-btn" onclick="printGlobalVocab()"> Export PDF</button>
-        <button class="action-btn" onclick="printGlobalGrid()"> Grilles Globales</button>
+        <button class="action-btn" onclick="printGlobalVocab()"> Export voc</button>
+        <button class="action-btn" onclick="printGlobalGrid()"> Export grids</button>
       </div>
 
-      <h2 class="section-title">Modules</h2>
+      <h2 class="section-title"> Modules</h2>
       <div class="module-grid" id="hub-grid">
         <!-- JS generate -->
       </div>
@@ -35,8 +35,8 @@
 
     <div id="view-module" class="view">
       <div class="nav-bar">
-        <button class="btn-back" onclick="showHub()">⬅ Retour au Hub</button>
-        <h2 id="mod-title" style="margin:0;">Titre du module</h2>
+        <button class="btn-back" onclick="showHub()"> Hub</button>
+        <h2 id="mod-title" style="margin:0;"> Titre du module</h2>
       </div>
 
       <div class="module-dashboard">
@@ -47,28 +47,76 @@
           </div>
 
           <div class="stat-box">
-            <div class="stat-number" style="color: #198754;">--%</div>
+            <div class="stat-number" id="mod-success-rate" style="color: #198754;">--%</div>
             <div style="color: var(--text-muted); font-size: 0.9rem;">Taux de réussite</div>
           </div>
         </div>
 
-        <h3 style="margin-top:0;">S'entraîner sur ce module</h3>
+        <h3 style="margin-top:0;"> Train on this module</h3>
         <div class="action-grid">
-          <button class="action-btn" onclick="printModuleVocab()"> Imprimer Module</button>
-          <button class="action-btn" onclick="printModuleGrid()">✍️ Fiche Grille</button>
-          <button class="action-btn"> Fiches</button>
+          <button class="action-btn" onclick="printModuleVocab()"> Export voc</button>
+          <button class="action-btn" onclick="printModuleGrid()"> Export grids</button>
+          <button class="action-btn" onclick="startFlashcards()"> FlashCard</button>
+          <button class="action-btn" onclick="startTrace()"> Writing</button>
           <button class="action-btn"> Test</button>
-          <button class="action-btn"> Tracé</button>
         </div>
       </div>
 
-      <h3 style="margin-top: 40px;">Liste du vocabulaire</h3>
+      <h3 style="margin-top: 40px;"> Module words list</h3>
       <div id="mod-vocab-list" class="vocab-list">
         <!-- JS generate -->
       </div>
 
     </div>
 
+    <div id="view-flashcards" class="view">
+      <div class="nav-bar">
+        <button class="btn-back" onclick="returnToModule()"> Module</button>
+        <h2 id="fc-title" style="margin:0;">Mode Flashcard</h2>
+        <div style="margin-left: auto; font-weight: bold;" id="fc-counter">0/0</div>
+      </div>
+
+      <div class="flashcard-container" onclick="flipCard()">
+        <div class="flashcard-inner" id="fc-inner">
+          <!-- RECTO : Hanzi -->
+          <div class="flashcard-front">
+            <div class="fc-hanzi" id="fc-hanzi">--</div>
+            <div class="fc-hint">Cliquez pour retourner</div>
+          </div>
+          <!-- VERSO : Pinyin + Traduction -->
+          <div class="flashcard-back">
+            <div class="fc-pinyin" id="fc-pinyin">--</div>
+            <div class="fc-translation" id="fc-translation">--</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOUTONS D'ÉVALUATION (Cachés au début) -->
+      <div class="fc-controls" id="fc-controls" style="display: none;">
+        <button class="action-btn" style="background-color: #dc3545; color: white;" onclick="nextCard(false)">❌ Raté</button>
+        <button class="action-btn" style="background-color: #198754; color: white;" onclick="nextCard(true)">✅ Validé</button>
+      </div>
+    </div>
+
+    <div id="view-trace" class="view">
+      <div class="nav-bar">
+        <button class="btn-back" onclick="showModule()">⬅ Retour au Module</button>
+        <h2 style="margin:0;">Mode Tracé</h2>
+      </div>
+      
+      <div class="card" style="margin: 0 auto; max-width: 350px; text-align: center; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <div id="trace-translation" style="font-size: 1.3rem; font-weight: bold; margin-bottom: 5px;">--</div>
+        <div id="trace-pinyin" style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px;">--</div>
+        
+        <!-- Zone cible pour HanziWriter -->
+        <div id="character-target" style="width: 200px; height: 200px; margin: 0 auto; border: 2px dashed var(--border); border-radius: 8px; touch-action: none;"></div>
+        
+        <div style="margin-top: 25px; display: flex; gap: 15px; justify-content: center;">
+          <button class="action-btn" style="padding: 10px 20px;" onclick="speakHanzi()">🔊 Audio</button>
+          <button class="action-btn" style="padding: 10px 20px;" onclick="nextTrace()">Suivant ➔</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div id="print-zone"></div>
@@ -80,7 +128,7 @@
     // for test usage
     /* 
       const DECK_DATA = {
-      title: "HSK - 1 (Mode Dev)",
+      title: "Dev",
       subtitle: "Sous-titre de test local",
       modules: [
         { id: 1, title: "Animaux", count: 7 },

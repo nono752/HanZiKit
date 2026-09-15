@@ -3,4 +3,4 @@ target_sources(HanZiKit PRIVATE
     exporter.cpp
 )
 
-target_include_directories(HanZiKit PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(HanZiKit PRIVATE ${CMAKE_BINARY_DIR}/src/templates)

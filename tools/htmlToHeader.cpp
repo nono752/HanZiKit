@@ -4,12 +4,10 @@
 #include "utils.hpp"
 
 /*
-MODIFIER ICVI
-    Convert the html/css/js file into a rawstring:
-        constexpr std::string_view HTML_TEMPLATE = R\"hzk_template(...)hzk_template"
+    Convert the html/css/js file into: const unsigned char htmlTemplate[]
 
-    Usage: HtmlToHeader <in.html> <in.css> <in.js> <out.hpp>
-    Current CMake write it in the file htmlTemplate.hpp in the binary dir.
+    Usage: HtmlToHeader <in.html> [--css f1.css...] [--js f1.js...] <out.hpp>
+    Current CMake write it in the file htmlTemplate.hpp in the current binary dir.
 */
 
 int main(int argc, char* argv[]) 
@@ -92,7 +90,7 @@ int main(int argc, char* argv[])
     makeHexListString(jsBuff, jsHexBuff);
     makeHexListString(htmlBuff.substr(jsEnd), jsTagToEndHexBuff);
 
-    out << "#ifndef HTML_TEMPLATE_H\n#define HTML_TEMPLATE_H\n\n#include <string_view>\n\n";
+    out << "#ifndef HTML_TEMPLATE_H\n#define HTML_TEMPLATE_H\n\n";
     out << "const unsigned char htmlTemplate[] = {\n";
     out << toCssTagHexBuff;
     out << cssHexBuff;

@@ -97,7 +97,10 @@ void ErrorHandler::enricherPhaseHandler(const Error& err)
     switch (err.code) 
     {
         case ErrorCode::UNKWNOWN_HANZI_ENTRY:
-            message = std::format("unknown hanzi '{}' encountered.", err.details);
+            message = std::format("unknown hanzi to cedict '{}' encountered.", err.details);
+            break;
+        case ErrorCode::INVALID_PINYIN_TONE:
+            message = std::format("invalid pinyin tone '{}' encountered.", err.details);
             break;
         default:
             message = "DEBUG: missing errorCode case!";
