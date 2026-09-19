@@ -2,8 +2,10 @@
 #include <fstream>
 #include <string>
 #include "htmlTemplate.hpp"
+#include <iostream>
 
 extern const unsigned char htmlTemplate[];
+extern const size_t htmlTemplateSize;
 
 void injectJson(const std::string_view htmlBase, const std::string& json, std::string& toWrite, Errors& errors)
 {
@@ -19,8 +21,13 @@ void injectJson(const std::string_view htmlBase, const std::string& json, std::s
     size_t jsonEnd = jsonBegin + jsonTag.size();
 
     // case: multiple jsonTag
-    if (htmlBase.find(jsonTag, jsonEnd) != std::string_view::npos)
+    size_t secondPos = htmlBase.find(jsonTag, jsonEnd);
+    if (secondPos != std::string_view::npos)
     {
+        size_t startPrint = (secondPos > 50) ? secondPos - 50 : 0; // TMP debug
+        std::cerr << "Doublon trouve pres de : \n" 
+              << std::string(htmlBase.substr(startPrint, 100)) << std::endl;
+
         errors.push_back({ErrorPhase::HTML_EXPORTER, ErrorCode::MULTIPLE_JSON_TAG_IN_HTML});
         return;
     }
@@ -47,7 +54,7 @@ bool exportToHtml(const std::string& json, const std::string& outFileName, Error
     }
   
     std::string finalContent;
-    injectJson(std::string_view(reinterpret_cast<const char*> (htmlTemplate)), json, finalContent, errors);
+    injectJson(std::string_view(reinterpret_cast<const char*> (htmlTemplate), htmlTemplateSize), json, finalContent, errors);
     if (finalContent.empty())
     {
         errors.push_back({ErrorPhase::HTML_EXPORTER, ErrorCode::HTML_BUFFER_WRITING_FAILED});

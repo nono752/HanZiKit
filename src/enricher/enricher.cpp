@@ -138,17 +138,22 @@ void enrichAst(MainPage& ast, const Cedict& dict, Errors& errors, std::deque<std
             DictEntries entries = dict.get(vocItem.hanzi);
             if (entries.empty())
             {
-                errors.push_back({ErrorPhase::ENRICHER, ErrorCode::UNKWNOWN_HANZI_ENTRY, vocItem.hanzi.data()});
+                errors.push_back({ErrorPhase::ENRICHER, ErrorCode::UNKWNOWN_HANZI_ENTRY, std::string(vocItem.hanzi)});
                 continue;
-            } // TODO: set behavior for duoyin zi.
+            } 
 
             DictEntry entry = entries[0];
             vocItem.traditional = entry.traditional;
-            if (vocItem.pinyin.empty()) vocItem.pinyin = entry.pinyin;
+            if (vocItem.pinyin.empty())
+            {
+                vocItem.pinyin = entry.pinyin;
+
+                if (entries.size() > 1) // handle duoyinzi
+                {
+                    errors.push_back({ErrorPhase::ENRICHER, ErrorCode::MULTIPLE_AUTO_PINYIN, std::string(vocItem.hanzi)});
+                }
+            } 
             vocItem.pinyin = pform.formatPinyin(vocItem.pinyin);
-            //pool.push_back(std::string());
-            //formatPinyin(vocItem.pinyin, pool.back(), errors);
-            //vocItem.pinyin = pool.back();
 
             if (vocItem.translation.empty()) vocItem.translation = entry.translation;
             //vocItem.translation = pform.formatTranslation(vocItem.translation);

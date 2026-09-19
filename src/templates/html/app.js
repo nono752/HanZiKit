@@ -56,15 +56,19 @@ function openModule(index, title, count) {
   
   const currentModule = DECK_DATA.modules[index];
   
-  // Lecture des stats globales
-  let stats = JSON.parse(localStorage.getItem('HanZiKit_stats') || '{}');
+  // Lecture sécurisée des stats globales
+  let stats = {};
+  try {
+    stats = JSON.parse(localStorage.getItem('hanziforge_stats') || '{}');
+  } catch (e) {}
   
   let moduleSuccess = 0;
   let moduleTotal = 0;
 
   if (currentModule && currentModule.vocItems) {
     currentModule.vocItems.forEach(item => {
-      const wordStats = stats[item.hanzi] || { success: 0, fail: 0 };
+      const charKey = item.hanzi || item.traditional;
+      const wordStats = stats[charKey] || { success: 0, fail: 0 };
       const totalAttempts = wordStats.success + wordStats.fail;
       
       moduleSuccess += wordStats.success;
@@ -73,37 +77,42 @@ function openModule(index, title, count) {
       let colorClass = '';
       let percentage = 0;
       
-      // Logique des 50%
+      // Logique des couleurs
       if (totalAttempts > 0) {
         percentage = Math.round((wordStats.success / totalAttempts) * 100);
         if (wordStats.fail > wordStats.success) {
-          colorClass = 'stat-red'; // Échoué plus de la moitié du temps
+          colorClass = 'stat-red';
         } else if (wordStats.success > wordStats.fail) {
-          colorClass = 'stat-green'; // Réussi plus de la moitié du temps
+          colorClass = 'stat-green';
         }
       }
 
+      // ATTENTION : Ce sont bien des backticks (`) autour du HTML, pas des apostrophes !
       vocabContainer.innerHTML += `
         <div class="vocab-item">
-          <div class="vocab-hanzi ${colorClass}">${item.hanzi || item.traditional}</div>
-          <div class="vocab-details">
-            <div class="vocab-pinyin">${item.pinyin}</div>
-            <div class="vocab-translation">${item.translation}</div>
+          
+          <div class="vocab-chinese-block">
+            <div class="vocab-pinyin-top">${item.pinyin || ''}</div>
+            <div class="vocab-hanzi ${colorClass}">${charKey}</div>
           </div>
           
-          <!-- NOUVEAU : Bloc Statistiques du mot -->
+          <div class="vocab-details">
+            <div class="vocab-translation">${item.translation || ''}</div>
+          </div>
+          
           <div class="vocab-stats">
              <div class="stat-text ${colorClass}">${totalAttempts > 0 ? percentage + '%' : '--'}</div>
              <div class="mastery-bar-bg">
                 <div class="mastery-bar-fill ${colorClass}" style="width: ${percentage}%;"></div>
              </div>
           </div>
+          
         </div>
       `;
     });
   }
   
-  // Mise à jour du taux de réussite global tout en haut du dashboard
+  // Mise à jour du taux de réussite global
   const globalRateDisplay = document.getElementById('mod-success-rate');
   if (globalRateDisplay) {
     if (moduleTotal > 0) {

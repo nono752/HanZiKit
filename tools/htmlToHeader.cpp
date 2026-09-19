@@ -90,6 +90,21 @@ int main(int argc, char* argv[])
     makeHexListString(jsBuff, jsHexBuff);
     makeHexListString(htmlBuff.substr(jsEnd), jsTagToEndHexBuff);
 
+    size_t totalBytes = htmlBuff.substr(0, cssBegin).size() + 
+        cssBuff.size() + 
+        htmlBuff.substr(cssEnd, jsBegin - cssEnd).size() + 
+        jsBuff.size() + 
+        htmlBuff.substr(jsEnd).size();
+
+    size_t invalidJsonTag = jsBuff.find("null /* {{JSON_INJECT}} */");
+    if (invalidJsonTag != std::string::npos)
+    {
+        size_t startPrint = (invalidJsonTag > 50) ? invalidJsonTag - 50 : 0;
+        std::cerr << "Error: invalid jsonTag in javascript file \n" 
+              << std::string(jsBuff.substr(startPrint, 100)) << std::endl;
+        return 1;
+    }
+
     out << "#ifndef HTML_TEMPLATE_H\n#define HTML_TEMPLATE_H\n\n";
     out << "const unsigned char htmlTemplate[] = {\n";
     out << toCssTagHexBuff;
@@ -97,7 +112,8 @@ int main(int argc, char* argv[])
     out << cssTagToJsTagHexBuff;
     out << jsHexBuff;
     out << jsTagToEndHexBuff;
-    out << "\n};\n\n#endif";
+    out << "\n};const size_t htmlTemplateSize = " << totalBytes << ";";
+    out << "\n\n#endif";
 
     if (out.fail())
     {

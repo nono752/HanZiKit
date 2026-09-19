@@ -24,7 +24,8 @@ enum class ErrorCode
     // enricher errors 200 - 299
     UNKWNOWN_HANZI_ENTRY = 200,
     INVALID_PINYIN_TONE = 201,
-
+    MULTIPLE_AUTO_PINYIN = 202,
+    
     // generation errors 300 - 399
     JSON_IS_EMPTY = 300,
 

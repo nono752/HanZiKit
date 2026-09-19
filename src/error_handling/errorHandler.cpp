@@ -102,6 +102,9 @@ void ErrorHandler::enricherPhaseHandler(const Error& err)
         case ErrorCode::INVALID_PINYIN_TONE:
             message = std::format("invalid pinyin tone '{}' encountered.", err.details);
             break;
+        case ErrorCode::MULTIPLE_AUTO_PINYIN:
+            message = std::format("multiple auto-pinyin for the hanzi '{}'.", err.details);
+            break;
         default:
             message = "DEBUG: missing errorCode case!";
             break;

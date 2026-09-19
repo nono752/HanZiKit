@@ -74,39 +74,44 @@ function printModuleVocab() {
 }
 
 // Générateur HTML pour une collection d'items
-function buildGridSheetHtml(title, items, totalBoxes = 9, guideCount = 3) {
+function buildGridSheetHtml(title, items, totalBoxes = 12, wordGuideRepetitions = 2) {
   let html = `<h1 class="print-title">${title}</h1><div class="print-grid-container">`;
 
   items.forEach(item => {
-    const chars = item.hanzi.split('');
-    chars.forEach((char, idx) => {
+    // Array.from gère mieux les caractères complexes UTF-8 que split('')
+    const chars = Array.from(item.hanzi || item.traditional);
+    const wordLen = chars.length;
+
+    html += `
+      <div class="print-grid-row">
+        <div class="print-char-info">
+          <!-- Le pinyin est désormais placé AU-DESSUS du mot -->
+          <div class="sub-pinyin">${item.pinyin || ''}</div>
+          <div class="main-char">${item.hanzi || item.traditional}</div>
+        </div>
+        <div class="tzg-container">`;
+
+    for (let i = 0; i < totalBoxes; i++) {
+      // Détermine quel caractère du mot va dans cette case (modulo)
+      const char = chars[i % wordLen];
+      
+      // Détermine si on est encore dans les répétitions "guidées" du mot
+      const isGuide = Math.floor(i / wordLen) < wordGuideRepetitions;
+
       html += `
-        <div class="print-grid-row">
-          <div class="print-char-info">
-            <div class="main-char">${char}</div>
-            <div class="sub-pinyin">${idx === 0 ? item.pinyin : ''}</div>
-            <div class="sub-trans">${idx === 0 ? item.translation : ''}</div>
-          </div>
-          <div class="tzg-container">`;
+        <div class="tzg-cell">
+          ${isGuide ? `<div class="tzg-guide">${char}</div>` : ''}
+        </div>`;
+    }
 
-      for (let i = 0; i < totalBoxes; i++) {
-        // Affiche le modèle estompé sur les premières cases
-        const hasGuide = i < guideCount;
-        html += `
-          <div class="tzg-cell">
-            ${hasGuide ? `<div class="tzg-guide">${char}</div>` : ''}
-          </div>`;
-      }
-
-      html += `</div></div>`;
-    });
+    html += `</div></div>`;
   });
 
   html += `</div>`;
   return html;
 }
 
-// Impression des grilles pour le Hub (Tous les modules)
+// Impression des grilles pour le Hub (Tous les modules)[cite: 1]
 function printGlobalGrid() {
   let allItems = [];
   DECK_DATA.modules.forEach(mod => {
@@ -118,7 +123,7 @@ function printGlobalGrid() {
   window.print();
 }
 
-// Impression des grilles pour le Module actif
+// Impression des grilles pour le Module actif[cite: 1]
 function printModuleGrid() {
   if (currentModuleIndex < 0 || !DECK_DATA.modules[currentModuleIndex]) return;
   const mod = DECK_DATA.modules[currentModuleIndex];
