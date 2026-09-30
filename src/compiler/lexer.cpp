@@ -31,7 +31,7 @@ void fileToString(const std::string& filepath, std::string& toWrite, Errors& err
     return;
 }
 
-struct Reader
+struct Internal_LexerReader
 {
     size_t start = 0;
     size_t current = 0;
@@ -40,7 +40,7 @@ struct Reader
     unsigned col = 1;
     unsigned tokenStartCol = 1;
 
-    Reader(const std::string& file) : source(file) {}
+    Internal_LexerReader(const std::string& file) : source(file) {}
 
     bool isAtEnd() const { return current >= source.length(); }
 
@@ -81,12 +81,12 @@ struct Reader
     }
 };
 
-bool isSpace(char c) { return c == ' ' || c == '\t' || c == '\r'; }
+static bool isSpace(char c) { return c == ' ' || c == '\t' || c == '\r'; }
 
 Tokens tokenize(const std::string& file, Errors& errors)
 {
     Tokens tokens;
-    Reader reader(file);
+    Internal_LexerReader reader(file);
 
     while (!reader.isAtEnd()) 
     {

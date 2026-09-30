@@ -2,7 +2,7 @@
 #include "compiler/astTypes.hpp"
 #include <nlohmann/json.hpp>
 
-void to_json(nlohmann::json& json, const SentenceItem& sItem) 
+static void to_json(nlohmann::json& json, const SentenceItem& sItem) 
 {
     json = nlohmann::json{
         {"sentence", sItem.sentence},
@@ -11,7 +11,7 @@ void to_json(nlohmann::json& json, const SentenceItem& sItem)
     };
 }
 
-void to_json(nlohmann::json& json, const VocItem& vItem) 
+static void to_json(nlohmann::json& json, const VocItem& vItem) 
 {
     json = nlohmann::json{
         {"hanzi", vItem.hanzi},
@@ -22,7 +22,7 @@ void to_json(nlohmann::json& json, const VocItem& vItem)
     };
 }
 
-void to_json(nlohmann::json& json, const Module& m)
+static void to_json(nlohmann::json& json, const Module& m)
 {
     json = nlohmann::json{
         {"id", m.id},
@@ -32,7 +32,7 @@ void to_json(nlohmann::json& json, const Module& m)
     };
 }
 
-void to_json(nlohmann::json& json, const MainPage& mp)
+static void to_json(nlohmann::json& json, const MainPage& mp)
 {
     json = nlohmann::json{
         {"title", mp.title},

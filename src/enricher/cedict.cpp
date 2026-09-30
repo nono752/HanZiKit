@@ -6,7 +6,7 @@ extern const unsigned char cedictData[];
 extern const size_t cedictLinesCount;
 extern const unsigned long long cedictDataSize;
 
-struct KeyCompHanzi
+struct Internal_KeyCompHanzi
 {
     bool operator()(const DictEntry& entry, std::string_view key) const { return entry.hanzi < key; }
     bool operator()(std::string_view key, const DictEntry& entry) const { return key < entry.hanzi; }
@@ -34,7 +34,7 @@ void Cedict::init(const std::string& source)
 DictEntries Cedict::get(std::string_view word) const
 {
     // all entries that have the key
-    auto [first, last] = std::equal_range(entries.begin(), entries.end(), word, KeyCompHanzi{});
+    auto [first, last] = std::equal_range(entries.begin(), entries.end(), word, Internal_KeyCompHanzi{});
 
     DictEntries possibilies;
     for (auto it = first; it != last; ++it) 

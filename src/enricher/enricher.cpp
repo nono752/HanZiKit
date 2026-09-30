@@ -3,7 +3,7 @@
 #include "cedict.hpp"
 #include <format>
 
-class VocItemFormatter
+class Internal_VocItemFormatter
 {
     private:
         Errors& errors;
@@ -19,7 +19,7 @@ class VocItemFormatter
         }
 
     public:
-        VocItemFormatter(Errors& err, std::deque<std::string>& p) : errors(err), pool(p) {}
+        Internal_VocItemFormatter(Errors& err, std::deque<std::string>& p) : errors(err), pool(p) {}
         void format(VocItem& vocItem)
         {
             currentVocItem = &vocItem;
@@ -34,7 +34,7 @@ class VocItemFormatter
 
 void enrichAst(MainPage& ast, const Cedict& dict, Errors& errors, std::deque<std::string>& pool)
 {
-    VocItemFormatter vocForm(errors, pool);
+    Internal_VocItemFormatter vocForm(errors, pool);
 
     for (Module& m : ast.modules)
     {
