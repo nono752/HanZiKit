@@ -54,18 +54,20 @@ class Compiler
             exportToHtml(json, "index.html", errors);
         }
 
+        // return true if there is fatalErrors
         bool printAndClearErrors(bool shouldPrintLog = false)
         {
-            if (errors.empty()) return false;
-
-            errorHandler.flushErrorInBuffer();
-            if (shouldPrintLog && !errorHandler.printErrorInLogFile("log.txt"))
+            errorHandler.makeErrorBuffer();
+            if (shouldPrintLog && !errorHandler.printErrorBufferInLogFile("log.txt"))
             {
                 std::cerr << "failed to print errors in log.txt ...\n";
             }
-            errorHandler.printErrorInTerminal();
+            errorHandler.printErrorBufferInTerminal();
 
-            return true;
+            bool hasFatalErrors = errorHandler.getFatalErrors() > 0;
+            errorHandler.clear();
+
+            return hasFatalErrors;
         }
         
         void _printTokens()

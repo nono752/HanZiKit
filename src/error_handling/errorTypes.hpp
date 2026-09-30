@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <array>
 
 enum class ErrorCode 
 {
@@ -25,7 +26,7 @@ enum class ErrorCode
     // enricher errors 200 - 299
     UNKWNOWN_HANZI_ENTRY = 200,
     INVALID_PINYIN_TONE = 201,
-    MULTIPLE_AUTO_PINYIN = 202,
+    MULTIPLE_AUTO_COMPLETION = 202,
     PINYIN_AND_HANZI_COUNT_NEQ = 203,
     PINYIN_DONT_MATCH_CEDICT = 204,
     
@@ -58,6 +59,10 @@ struct Error
     std::string details = "";
     unsigned line = 0;
     unsigned col = 0;
+};
+
+inline constexpr std::array<ErrorCode, 1> warningCodes = {
+    ErrorCode::MULTIPLE_AUTO_COMPLETION,
 };
 
 struct ErrorCodeAndDetail

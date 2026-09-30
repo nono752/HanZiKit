@@ -2,11 +2,23 @@
 #include <fstream>
 #include <iostream>
 #include <format>
+#include <algorithm>
 
-void ErrorHandler::flushErrorInBuffer()
+void ErrorHandler::makeErrorBuffer()
 {
     for (Error& err : errors)
     {
+        if (std::find(warningCodes.cbegin(), warningCodes.cend(), err.code) == warningCodes.cend())
+        {
+            prefix = "ERROR";
+            fatalErrors++;
+        }
+        else
+        {
+            prefix = "WARNING";
+            warningErrors++;
+        }
+
         switch (err.phase)
         {
             case ErrorPhase::LEXER: 
@@ -29,8 +41,6 @@ void ErrorHandler::flushErrorInBuffer()
                 break;
         }
     }
-
-    errors.clear();
 }
 
 void ErrorHandler::lexerPhaseHandler(const Error& err)
@@ -53,7 +63,7 @@ void ErrorHandler::lexerPhaseHandler(const Error& err)
             break;
     }
 
-    buffer += std::format("[LEXER ERROR] at ({}, {}):\n{}\n", err.line, err.col, message);
+    buffer += std::format("[LEXER {}] at ({}, {}):\n{}\n", prefix, err.line, err.col, message);
 }
 void ErrorHandler::parserPhaseHandler(const Error& err)
 {
@@ -91,7 +101,7 @@ void ErrorHandler::parserPhaseHandler(const Error& err)
             break;
     }
 
-    buffer += std::format("[PARSER ERROR] at ({}, {}):\n{}\n", err.line, err.col, message);
+    buffer += std::format("[PARSER {}] at ({}, {}):\n{}\n", prefix, err.line, err.col, message);
 }
 void ErrorHandler::enricherPhaseHandler(const Error& err)
 {
@@ -105,21 +115,21 @@ void ErrorHandler::enricherPhaseHandler(const Error& err)
         case ErrorCode::INVALID_PINYIN_TONE:
             message = std::format("invalid pinyin tone '{}' encountered.", err.details);
             break;
-        case ErrorCode::MULTIPLE_AUTO_PINYIN:
-            message = std::format("multiple auto-pinyin for the hanzi '{}'.", err.details);
+        case ErrorCode::MULTIPLE_AUTO_COMPLETION:
+            message = std::format("multiple auto-completion possible for the hanzi {}.", err.details);
             break;
         case ErrorCode::PINYIN_AND_HANZI_COUNT_NEQ:
             message = std::format("pinyin and hanzi count are not equals: '{}'.", err.details);
             break;
         case ErrorCode::PINYIN_DONT_MATCH_CEDICT:
-            message = std::format("pinyin don't match cedict datas. Existants datas for: {}.", err.details);
+            message = std::format("pinyin don't match cedict datas. Existants datas for the pinyin: {}.", err.details);
             break;
         default:
             message = "DEBUG: missing errorCode case!";
             break;
     }
 
-    buffer += std::format("[ENRICHER ERROR] at ({}, {}):\n{}\n", err.line, err.col, message);
+    buffer += std::format("[ENRICHER {}] at ({}, {}):\n{}\n", prefix, err.line, err.col, message);
 }
 void ErrorHandler::generatorPhaseHandler(const Error& err)
 {
@@ -136,7 +146,7 @@ void ErrorHandler::generatorPhaseHandler(const Error& err)
             break;
     }
 
-    buffer += std::format("[{}_GENERATOR ERROR] at ({}, {}):\n{}\n", generatorKind, err.line, err.col, message);
+    buffer += std::format("[{}_GENERATOR {}] at ({}, {}):\n{}\n", generatorKind, prefix, err.line, err.col, message);
 }
 void ErrorHandler::exporterPhaseHandler(const Error& err)
 {
@@ -161,12 +171,12 @@ void ErrorHandler::exporterPhaseHandler(const Error& err)
             break;
     }
 
-    buffer += std::format("[EXPORTER ERROR] at ({}, {}):\n{}\n", err.line, err.col, message);
+    buffer += std::format("[EXPORTER {}] at ({}, {}):\n{}\n", prefix, err.line, err.col, message);
 }
 
-bool ErrorHandler::printErrorInLogFile(const std::string& file) const
+bool ErrorHandler::printErrorBufferInLogFile(const std::string& file) const
 {
-    std::ofstream out("log.txt");
+    std::ofstream out("log.txt", std::ios::app);
     if (!out) return false;
 
     out << buffer << std::flush;
@@ -180,7 +190,7 @@ bool ErrorHandler::printErrorInLogFile(const std::string& file) const
     out.close();
     return true;
 }
-void ErrorHandler::printErrorInTerminal() const
+void ErrorHandler::printErrorBufferInTerminal() const
 {
     std::cerr << buffer << std::flush;
 }

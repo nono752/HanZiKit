@@ -26,20 +26,25 @@ int main(int argc, char* argv[])
         
         compiler.loadAndTokenize(filePath);
         if (!compiler.printAndClearErrors()) std::cerr << "Tokens succesfully created..." << std::endl;
+        else return 1;
         //compiler._printTokens();
 
         compiler.parseTokens();
         if (!compiler.printAndClearErrors()) std::cerr << "Tokens succesfully parsed..." << std::endl;
+        else return 1;
 
         compiler.completeAst();
         if (!compiler.printAndClearErrors()) std::cerr << "ast enriched succesfully..." << std::endl;
+        else return 1;
 
         compiler.generateJSON();
         if (!compiler.printAndClearErrors()) std::cerr << "json succesfully generated..." << std::endl;
         //compiler._printJSON();
+        else return 1;
 
         compiler.generateHtml();
         if (!compiler.printAndClearErrors()) std::cerr << "html file successfully generated..." << std::endl;
+        else return 1;
 
         return 0;
     }

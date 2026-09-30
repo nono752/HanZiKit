@@ -63,7 +63,7 @@ void enrichAst(MainPage& ast, const Cedict& dict, Errors& errors, std::deque<std
                     {
                         detail += std::format("\n > pinyin = {}, translation = {}", entry.pinyin, entry.translation);
                     }
-                    errors.push_back({ErrorPhase::ENRICHER, ErrorCode::MULTIPLE_AUTO_PINYIN, detail, vocItem.line, vocItem.col});
+                    errors.push_back({ErrorPhase::ENRICHER, ErrorCode::MULTIPLE_AUTO_COMPLETION, detail, vocItem.line, vocItem.col});
                 }
             }
 
