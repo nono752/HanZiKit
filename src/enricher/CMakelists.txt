@@ -17,6 +17,7 @@ add_dependencies(HanZiKit GenerateDict)
 target_sources(HanZiKit PRIVATE
     enricher.cpp
     cedict.cpp
+    pinyinEnricher.cpp
 )
 
 target_include_directories(HanZiKit PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

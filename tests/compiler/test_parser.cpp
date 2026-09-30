@@ -26,10 +26,10 @@ TEST(ParserTest, ValidCompleteAST)
     std::string src = 
         "# HSK 1\n"
         "## Animals\n"
-        "猫 | cat\n"
-        "狗 | dog\n"
+        "猫 | mao1 | cat\n"
+        "狗 | gou3 | dog\n"
         "## Multiple string title\n"
-        "水 | water\n"
+        "水\n"
         "## 汉语 \n"
         "## mix 汉语\n";
 
@@ -46,13 +46,16 @@ TEST(ParserTest, ValidCompleteAST)
     EXPECT_EQ(result.ast.modules[0].title, "Animals");
     ASSERT_EQ(result.ast.modules[0].vocItems.size(), 2);
     EXPECT_EQ(result.ast.modules[0].vocItems[0].hanzi, "猫");
+    EXPECT_EQ(result.ast.modules[0].vocItems[0].pinyin, "mao1");
     EXPECT_EQ(result.ast.modules[0].vocItems[0].translation, "cat");
     EXPECT_EQ(result.ast.modules[0].vocItems[1].hanzi, "狗");
+    EXPECT_EQ(result.ast.modules[0].vocItems[1].pinyin, "gou3");
     EXPECT_EQ(result.ast.modules[0].vocItems[1].translation, "dog");
 
     // check module 2
     EXPECT_EQ(result.ast.modules[1].title, "Multiple string title");
-    EXPECT_EQ(result.ast.modules[1].vocItems[0].translation, "water");
+    EXPECT_EQ(result.ast.modules[1].vocItems[0].translation, "");
+    EXPECT_EQ(result.ast.modules[1].vocItems[0].pinyin, "");
 
     // check module 3
     EXPECT_EQ(result.ast.modules[2].title, "汉语");

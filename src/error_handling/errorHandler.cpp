@@ -76,8 +76,11 @@ void ErrorHandler::parserPhaseHandler(const Error& err)
         case ErrorCode::MISSING_SEPARATOR:
             message = std::format("Missing separator '|' for the entry '{}'.", err.details);
             break;
-        case ErrorCode::MISSING_TRADUCTION:
+        case ErrorCode::MISSING_TRANSLATION:
             message = std::format("Missing translation for the entry '{}'.", err.details);
+            break;
+        case ErrorCode::MISSING_PINYIN:
+            message = std::format("Missing pinyin for the entry '{}'.", err.details);
             break;
         case ErrorCode::NO_INSTRUCTION:
             message = "Empty instruction or missing data.";
@@ -104,6 +107,12 @@ void ErrorHandler::enricherPhaseHandler(const Error& err)
             break;
         case ErrorCode::MULTIPLE_AUTO_PINYIN:
             message = std::format("multiple auto-pinyin for the hanzi '{}'.", err.details);
+            break;
+        case ErrorCode::PINYIN_AND_HANZI_COUNT_NEQ:
+            message = std::format("pinyin and hanzi count are not equals: '{}'.", err.details);
+            break;
+        case ErrorCode::PINYIN_DONT_MATCH_CEDICT:
+            message = std::format("pinyin don't match cedict datas. Existants datas for: {}.", err.details);
             break;
         default:
             message = "DEBUG: missing errorCode case!";

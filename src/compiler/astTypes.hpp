@@ -13,6 +13,8 @@ struct SentenceItem
 
 struct VocItem
 {
+    unsigned line = 0;
+    unsigned col = 0;
     std::string_view hanzi;
     std::string_view traditional;
     std::string_view pinyin;

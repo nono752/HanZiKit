@@ -8,7 +8,7 @@
 void Parser::pushErrorAndSynchronize(ErrorCode err, std::string_view detail)
 {
     std::string msg(detail); 
-    if (msg.empty()) msg = peek() ? std::string(peek()->data) : "EOF"; 
+    if (msg.empty()) msg = isAtEnd() ? "EOF" : std::string(peek()->data); 
 
     unsigned line, col;
     if (!isAtEnd())
@@ -30,8 +30,6 @@ void Parser::pushErrorAndSynchronize(ErrorCode err, std::string_view detail)
 
 std::string_view Parser::getTextSequence()
 {
-    std::string_view title;
-
     const Token* firstTok = peek();
     if (!firstTok || (firstTok->type != TokenType::TEXT && firstTok->type != TokenType::HANZI))
         return {};
@@ -49,7 +47,7 @@ std::string_view Parser::getTextSequence()
     return std::string_view(start, size);
 }
 
-void Parser::detectTitle(bool isMainPage)
+void Parser::parseTitle(bool isMainPage)
 {
     if (isMainPage && !ast.title.empty()) 
     {
@@ -59,14 +57,14 @@ void Parser::detectTitle(bool isMainPage)
         
     std::string_view title = getTextSequence();
     
-    if (title.empty() && peek() && peek()->type != TokenType::NEWLINE) 
-    {
-        pushErrorAndSynchronize(ErrorCode::UNEXPECTED_SYMBOL);
-        return;
-    }
-    if (title.empty()) 
+    if (title.empty() && (NextTokenIsNewline() || isAtEnd())) 
     {
         pushErrorAndSynchronize(ErrorCode::MISSING_TITLE);
+        return;
+    }
+    else if (!NextTokenIsNewline() && !isAtEnd())
+    {
+        pushErrorAndSynchronize(ErrorCode::UNEXPECTED_SYMBOL);
         return;
     }
         
@@ -83,43 +81,72 @@ void Parser::detectTitle(bool isMainPage)
     advance();
 }
 
-void Parser::detectVocItem()
+std::string_view Parser::extractPinyin()
+{
+    std::string_view pinyin = getTextSequence();
+    if (pinyin.empty())
+    {
+        pushErrorAndSynchronize(ErrorCode::MISSING_PINYIN);
+        return "";
+    }
+    else if (!NextTokenIsSeparator())
+    {
+        pushErrorAndSynchronize(ErrorCode::MISSING_SEPARATOR);
+        return "";
+    }
+    advance();
+
+    return pinyin;
+}
+std::string_view Parser::extractTranslation()
+{
+    std::string_view trad = getTextSequence();
+    if (trad.empty())
+    {
+        pushErrorAndSynchronize(ErrorCode::MISSING_TRANSLATION);
+        return "";
+    }
+    else if (!NextTokenIsNewline())
+    {
+        pushErrorAndSynchronize(ErrorCode::UNEXPECTED_SYMBOL);
+        return "";
+    }
+
+    return trad;
+}
+void Parser::parseVocItem(const Token& vocItemTok)
 {
     if (!currentModule)
     {
-        pushErrorAndSynchronize(ErrorCode::VOCAB_OUTSIDE_MODULE, tokens[current - 1].data);
+        pushErrorAndSynchronize(ErrorCode::VOCAB_OUTSIDE_MODULE, vocItemTok.data);
         return;
     }
 
     VocItem item;
-    item.hanzi = tokens[current - 1].data;
-
-    if (peek() && peek()->type == TokenType::SPECIAL_CHAR && peek()->data == "|")
-        advance();
+    item.hanzi = vocItemTok.data;
+    item.line = vocItemTok.line;
+    item.col = vocItemTok.col;
+    
+    if (NextTokenIsSeparator()) advance();
+    else if (NextTokenIsNewline() || isAtEnd())
+    {
+        currentModule->vocItems.push_back(item);
+        if (!isAtEnd()) advance();
+        return;
+    }
     else
     {
         pushErrorAndSynchronize(ErrorCode::MISSING_SEPARATOR);
         return;
     }
 
-    std::string_view trad = getTextSequence();
+    item.pinyin = extractPinyin();
+    if (item.pinyin.empty()) return;
+    item.translation = extractTranslation();
+    if (item.translation.empty()) return;
 
-    if (trad.empty())
-    {
-        pushErrorAndSynchronize(ErrorCode::MISSING_TRADUCTION);
-        return;
-    }
-    else if (peek() && peek()->type != TokenType::NEWLINE)
-    {
-        pushErrorAndSynchronize(ErrorCode::UNEXPECTED_SYMBOL);
-        return;
-    }
-    else
-    {
-        item.translation = trad;
-        currentModule->vocItems.push_back(item);
-        advance();
-    }
+    currentModule->vocItems.push_back(item);
+    advance();
 }
 
 void Parser::parseLine()
@@ -129,11 +156,11 @@ void Parser::parseLine()
     if (!first || first->type == TokenType::NEWLINE) return;
 
     if (first->type == TokenType::SPECIAL_CHAR && first->data == "#")
-        detectTitle(true); // mainPage = true
+        parseTitle(true); // mainPage = true
     else if (first->type == TokenType::SPECIAL_CHAR && first->data == "##")
-        detectTitle(false);
+        parseTitle(false);
     else if (first->type == TokenType::HANZI)
-        detectVocItem();
+        parseVocItem(*first); // TODO: parse sentence in vocItemSection
     else if (first->type == TokenType::TEXT)
         pushErrorAndSynchronize(ErrorCode::NO_INSTRUCTION);
     else

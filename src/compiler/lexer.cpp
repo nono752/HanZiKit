@@ -38,6 +38,7 @@ struct Reader
     std::string_view source;
     unsigned line = 1;
     unsigned col = 1;
+    unsigned tokenStartCol = 1;
 
     Reader(const std::string& file) : source(file) {}
 
@@ -52,13 +53,14 @@ struct Reader
     {
         if (isAtEnd()) return '\0';
         char c = source[current++];
+        unsigned char uc = static_cast<unsigned char>(c);
 
         if (c == '\n') 
         {
             line++;
             col = 1;
         } 
-        else 
+        else if (!(uc >= 128 && uc <= 191)) // not an utf8 continuation octet
         {
             col++;
         }
@@ -68,10 +70,11 @@ struct Reader
 
     void ignore() { start = current; }
 
+    void saveTokenStartPos() { tokenStartCol = col - 1; }
     Token makeToken(TokenType type)
     {
         std::string_view word = source.substr(start, current - start);
-        Token token = {type, word, line, col};
+        Token token = {type, word, line, tokenStartCol};
         start = current;
 
         return token;
@@ -95,13 +98,15 @@ Tokens tokenize(const std::string& file, Errors& errors)
             continue;
         }
 
-        switch (c) 
+        reader.saveTokenStartPos();
+
+        switch (c)
         {
             case '\n':
                 tokens.push_back(reader.makeToken(TokenType::NEWLINE));
                 break;
 
-            case '|': // use fall-through for other single special char
+            case '|': case '>':
                 tokens.push_back(reader.makeToken(TokenType::SPECIAL_CHAR));
                 break;
 
@@ -118,7 +123,7 @@ Tokens tokenize(const std::string& file, Errors& errors)
                 if (currentUChar > 127) whatKindOfText = 2;
                 else if (isalnum(currentUChar)) whatKindOfText = 1;
 
-                if (whatKindOfText > 0) 
+                if (whatKindOfText > 0)
                 {
                     while (!reader.isAtEnd())
                     {

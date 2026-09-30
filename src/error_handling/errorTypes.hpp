@@ -17,14 +17,17 @@ enum class ErrorCode
     UNEXPECTED_SYMBOL = 102,
     VOCAB_OUTSIDE_MODULE = 103,
     MISSING_SEPARATOR = 104,
-    MISSING_TRADUCTION = 105,
+    MISSING_TRANSLATION = 105,
     NO_INSTRUCTION = 106,
     UNKNOWN_PARSER_ERROR = 107,
+    MISSING_PINYIN = 108,
 
     // enricher errors 200 - 299
     UNKWNOWN_HANZI_ENTRY = 200,
     INVALID_PINYIN_TONE = 201,
     MULTIPLE_AUTO_PINYIN = 202,
+    PINYIN_AND_HANZI_COUNT_NEQ = 203,
+    PINYIN_DONT_MATCH_CEDICT = 204,
     
     // generation errors 300 - 399
     JSON_IS_EMPTY = 300,
@@ -55,6 +58,12 @@ struct Error
     std::string details = "";
     unsigned line = 0;
     unsigned col = 0;
+};
+
+struct ErrorCodeAndDetail
+{
+    ErrorCode code;
+    std::string detail;
 };
 
 typedef std::vector<Error> Errors;

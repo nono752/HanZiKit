@@ -44,9 +44,22 @@ class Parser
         void pushErrorAndSynchronize(ErrorCode err, std::string_view detail = "");
         std::string_view getTextSequence();
         
-        void detectTitle(bool isMainPage);
-        void detectVocItem();
+        void parseTitle(bool isMainPage);
+
+        std::string_view extractPinyin();
+        std::string_view extractTranslation();
+        void parseVocItem(const Token& vocItemTok);
+
         void parseLine();
+
+        bool NextTokenIsSeparator() const
+        {
+            return peek() && peek()->type == TokenType::SPECIAL_CHAR && peek()->data == "|";
+        }
+        bool NextTokenIsNewline() const
+        {
+            return peek() && peek()->type == TokenType::NEWLINE;
+        }
 };
 
 #endif
