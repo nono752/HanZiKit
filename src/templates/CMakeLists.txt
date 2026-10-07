@@ -6,6 +6,7 @@ set(CSS_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/html/modules.css"
     "${CMAKE_CURRENT_SOURCE_DIR}/html/print.css"
     "${CMAKE_CURRENT_SOURCE_DIR}/html/flashCard.css"
+    "${CMAKE_CURRENT_SOURCE_DIR}/html/trace.css"
 )
 set(JS_SOURCES
     # to initialise first

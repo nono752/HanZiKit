@@ -1,14 +1,30 @@
 @media print {
   /* 1. Nettoyage de l'interface */
-  body { background: white; margin: 0; padding: 0; color: #2c3e50; }
+  @page { size: A4; margin: 0; }
+
+  body { background: white; margin: 1.5cm; padding: 0; color: #2c3e50; }
   .container { display: none !important; }
-  #print-zone { display: block !important; width: 100%; }
+  #print-zone { display: block !important; width: 100%;}
+
+  /* 3. Nouvel en-tête sur-mesure (Date à gauche, Titre à droite) */
+  .print-header-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 5px;
+  }
+
+  .print-header {
+    font-family: var(--font-ui);
+    color: #7f8c8d;
+    font-size: 8pt;
+  }
 
   /* 2. Titre du document */
   .print-title {
     text-align: center;
     font-size: 26pt;
-    font-weight: 800;
+    font-weight: bold;
     letter-spacing: -0.5px;
     margin-top: 0;
     margin-bottom: 30px;
@@ -53,9 +69,9 @@
 
   /* 7. Typographie spécifique Hanzi */
   .print-hanzi {
-    font-size: 18pt;
+    font-size: 24pt;
     font-weight: normal;
-    font-family: "Kaiti SC", "STKaiti", "KaiTi", "SimSun", serif;
+    font-family: var(--font-zh-brush);
     color: #000;
     width: 25%;
   }
@@ -69,25 +85,35 @@
   }
   
   /* Colonne d'information à gauche */
-  .print-char-info {
-    min-width: 90px; /* Remplacer width par min-width pour laisser la place aux mots longs */
-    padding-right: 15px;
-    text-align: center; /* Centrer le pinyin par rapport au hanzi est plus esthétique */
-  }
+  /* Le conteneur global du mot à gauche des grilles */
+.print-char-info {
+  display: flex;
+  justify-content: center;
+  gap: 4px; /* Un léger espace entre chaque caractère du mot */
+  min-width: 90px;
+  padding-right: 15px;
+}
 
-  .print-char-info .main-char {
-    font-size: 24pt;
-    font-weight: bold;
-    line-height: 1.1;
-    white-space: nowrap; /* Empêche les mots de 2+ caractères d'aller à la ligne */
-  }
+/* La micro-colonne dédiée à UN SEUL caractère et SON pinyin */
+.char-pair {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centre le pinyin exactement au-dessus du hanzi */
+}
 
-  .print-char-info .sub-pinyin {
-    font-size: 10pt;
-    color: #555;
-    margin-bottom: 2px;
-    white-space: nowrap;
-  }
+.char-pair .sub-pinyin {
+  font-family: var(--font-ui);
+  font-size: 11pt;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.char-pair .main-char {
+  font-family: var(--font-zh-brush);
+  font-size: 24pt;
+  font-weight: normal;
+  line-height: 1;
+}
 
   
   /* Zone des cases d'écriture */
@@ -135,7 +161,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 26pt;
-    font-family: "Kaiti SC", "STKaiti", "KaiTi", "Noto Sans CJK SC", serif;
+    font-family: var(--font-zh-brush);
     color: rgba(0, 0, 0, 0.16);
     z-index: 1;
   }

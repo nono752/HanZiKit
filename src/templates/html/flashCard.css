@@ -1,55 +1,129 @@
+/* --- VUE 3 : FLASHCARDS NOUVEAU DESIGN --- */
 .flashcard-container {
   width: 100%;
-  max-width: 400px;
-  height: 300px;
+  max-width: 650px;
   margin: 0 auto 30px auto;
-  perspective: 1000px; /* Nécessaire pour l'effet 3D */
-  cursor: pointer;
 }
 
-.flashcard-inner {
+.fc-modern-card {
   position: relative;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-}
-
-/* Classe ajoutée par JS pour retourner la carte */
-.flashcard-inner.is-flipped {
-  transform: rotateY(180deg);
-}
-
-.flashcard-front, .flashcard-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  -webkit-backface-visibility: hidden; /* Safari */
-  backface-visibility: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   background-color: var(--card-bg);
   border: 2px solid var(--border);
   border-radius: 15px;
   box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-}
-
-.flashcard-back {
-  transform: rotateY(180deg);
-  border-color: var(--primary);
-}
-
-.fc-hanzi { font-size: 6rem; color: var(--text-main); line-height: 1; }
-.fc-hint { color: var(--text-muted); font-size: 0.9rem; margin-top: 20px; }
-.fc-pinyin { font-size: 2rem; color: var(--primary); font-weight: bold; margin-bottom: 10px; }
-.fc-translation { font-size: 1.5rem; color: var(--text-main); }
-
-.fc-controls {
+  padding: 60px 20px 80px 20px; /* Laisse de l'espace pour les boutons absolus */
+  min-height: 280px;
   display: flex;
+  align-items: stretch;
+}
+
+/* --- BOUTONS ABSOLUS --- */
+.fc-btn-skip {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.fc-btn-skip:hover { background: var(--border); color: var(--text-main); }
+
+.fc-btn-audio {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  background: var(--bg-color);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
   justify-content: center;
+}
+.fc-btn-audio:hover { background: var(--border); }
+
+.fc-eval-group {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  display: flex;
+  gap: 12px;
+}
+.fc-btn-fail, .fc-btn-pass {
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fc-btn-fail { background-color: #dc3545; }
+.fc-btn-pass { background-color: #198754; }
+
+/* --- CHAMPS MASQUÉS (CENTRE) --- */
+.fc-center-content {
+  display: flex;
+  width: 100%;
   gap: 20px;
 }
-.fc-controls .action-btn { flex: 1; max-width: 150px; }
+.fc-col-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.fc-col-right {
+  flex: 1;
+  display: flex;
+}
+
+.fc-reveal-field {
+  position: relative;
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  background: var(--bg-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.fc-reveal-field:hover { border-color: var(--primary); }
+.pinyin-field { height: 60px; }
+.hanzi-field { flex-grow: 1; min-height: 120px; }
+.trans-field { width: 100%; }
+
+/* Le masque visible par défaut */
+.fc-mask {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: var(--text-muted);
+  transition: opacity 0.2s;
+}
+
+/* Révélation au clic */
+.fc-reveal-field.revealed .fc-mask { opacity: 0; pointer-events: none; }
+.fc-hidden-content { opacity: 0; transition: opacity 0.2s; text-align: center; }
+.fc-reveal-field.revealed .fc-hidden-content { opacity: 1; }
+
+/* Typographie */
+.fc-pinyin-top { font-size: 1.2rem; color: var(--text-muted); font-weight: bold; }
+.fc-hanzi-main { font-family: var(--font-zh-brush); font-size: 4rem; font-weight: normal; color: var(--primary); line-height: 1; }
+.fc-translation-main { font-size: 1.5rem; color: var(--text-main); font-weight: 500; padding: 20px; }

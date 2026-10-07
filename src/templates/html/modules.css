@@ -37,37 +37,42 @@
 }
 .vocab-chinese-block {
   display: flex;
-  flex-direction: column;
-  align-items: center;     /* Centre le texte horizontalement */
-  justify-content: center;
-  min-width: 90px;         /* Laisse de la place pour les mots longs */
-  border-right: 2px solid var(--border); /* La ligne de séparation se déplace ici */
+  gap: 6px; /* Espace entre chaque caractère du mot */
   margin-right: 15px;
   padding-right: 15px;
+  border-right: 2px solid var(--border);
+  min-width: 80px;
+  justify-content: center;
 }
 
-/* Le style du pinyin au-dessus */
-.vocab-pinyin-top {
-  font-size: 0.9rem;
+/* La micro-colonne pour UN caractère et SON pinyin */
+.vocab-char-pair {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.vocab-char-pair .vocab-py {
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
   color: var(--text-muted);
   margin-bottom: 2px;
-  white-space: nowrap;     /* Empêche le pinyin d'aller à la ligne */
+  white-space: nowrap;
 }
 
-/* Le style du mot chinois en dessous */
-.vocab-hanzi {
-  font-size: 2rem;
-  font-weight: bold;
-  color: var(--primary);
-  white-space: nowrap;     /* Force l'affichage sur une ligne (comme vu précédemment) */
-  line-height: 1.1;        /* Resserre un peu l'espace avec le pinyin */
+.vocab-char-pair .vocab-hz {
+  font-family: var(--font-zh-brush); /* Police calligraphique centralisée */
+  font-size: 2.2rem;
+  font-weight: normal;
+  line-height: 1;
 }
 
-/* On centre verticalement la traduction maintenant qu'elle est seule */
+/* Ajustement du conteneur de traduction pour centrer verticalement */
 .vocab-details {
   flex-grow: 1;
   display: flex;
-  align-items: center; 
+  align-items: center; /* Centre la traduction par rapport au bloc chinois */
 }
 
 .vocab-translation {

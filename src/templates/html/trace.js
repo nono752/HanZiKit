@@ -4,11 +4,9 @@ function startTrace() {
     alert("Aucun mot à tracer dans ce module.");
     return;
   }
+  currentTraceIndex = 0;
   
-  currentTraceIndex = 0; // On commence par le premier mot
-  
-  // Bascule d'affichage
-  document.getElementById('view-module').classList.remove('active');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-trace').classList.add('active');
   
   loadTraceCard();
@@ -16,73 +14,91 @@ function startTrace() {
 
 function loadTraceCard() {
   const item = DECK_DATA.modules[currentModuleIndex].vocItems[currentTraceIndex];
-  const word = item.hanzi || item.traditional;
+  const word = Array.from(item.hanzi || item.traditional || "");
+  if (word.length === 0) return;
   
-  // 1. Découpe le mot en un tableau de caractères individuels (ex: "电话" -> ["电", "话"])
-  const chars = Array.from(word); 
-  
-  // Mise à jour des textes
   document.getElementById('trace-translation').textContent = item.translation || '';
   document.getElementById('trace-pinyin').textContent = item.pinyin || '';
   
-  // 2. Nettoyage et adaptation du conteneur parent
-  const targetContainer = document.getElementById('character-target');
+  const targetContainer = document.getElementById('trace-targets-container');
+  const decompContainer = document.getElementById('stroke-decomposition');
+  
+  // Nettoyage complet
   targetContainer.innerHTML = '';
+  decompContainer.innerHTML = '';
+  currentWriters = [];
+  currentCharQuizIndex = 0;
   
-  // On modifie le style du conteneur pour qu'il affiche les boîtes en ligne
-  targetContainer.style.width = 'auto';
-  targetContainer.style.border = 'none'; // On enlève la bordure globale
-  targetContainer.style.display = 'flex';
-  targetContainer.style.justifyContent = 'center';
-  targetContainer.style.gap = '10px';
-  targetContainer.style.flexWrap = 'wrap'; // Permet de passer à la ligne si le mot est très long
-  
-  let writers = []; // On va stocker tous les moteurs de tracé du mot
-  
-  // 3. Création d'une zone et d'un tracé pour CHAQUE caractère
-  chars.forEach((char, index) => {
-    // Création de la sous-boîte
-    const charDiv = document.createElement('div');
-    charDiv.id = 'trace-char-' + index;
-    // On met la bordure en pointillés sur chaque petite boîte
-    charDiv.style.width = '120px'; // Un peu plus petit pour que plusieurs rentrent à l'écran
-    charDiv.style.height = '120px';
-    charDiv.style.border = '2px dashed var(--border)';
-    charDiv.style.borderRadius = '8px';
+  word.forEach((char, index) => {
+    // --- 1. Instanciation de la case principale interactive ---
+    const boxId = 'trace-main-' + index;
+    const box = document.createElement('div');
+    box.id = boxId;
+    box.className = 'trace-target-box';
+    targetContainer.appendChild(box);
     
-    targetContainer.appendChild(charDiv);
-    
-    // Initialisation du HanziWriter pour CE caractère précis[cite: 2]
-    const w = HanziWriter.create(charDiv.id, char, {
-      width: 120,
-      height: 120,
-      showOutline: true,
-      strokeAnimationSpeed: 1,
-      delayBetweenStrokes: 50
+    const writer = HanziWriter.create(boxId, char, {
+      width: 150, height: 150,
+      showOutline: true, strokeAnimationSpeed: 1, delayBetweenStrokes: 50
     });
-    writers.push(w);
+    currentWriters.push({ instance: writer, element: box });
+    
+    // --- 2. RESTAURATION DE LA LIGNE HORIZONTALE (.char-decomp-row) ---
+    // On crée un conteneur flex horizontal pour CE sinogramme
+    const decompRow = document.createElement('div');
+    decompRow.className = 'char-decomp-row';
+    decompContainer.appendChild(decompRow);
+    
+    // --- 3. Génération des petits SVG ---
+    HanziWriter.loadCharacterData(char).then(function(charData) {
+      if (!charData || !charData.strokes) return;
+      const numStrokes = charData.strokes.length;
+      
+      for (let i = 0; i < numStrokes; i++) {
+        const stepBox = document.createElement('div');
+        stepBox.className = 'stroke-box';
+        
+        let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="34" height="34">
+                     <g transform="scale(1, -1) translate(0, -900)">`;
+                     
+        for (let j = 0; j < numStrokes; j++) svg += `<path d="${charData.strokes[j]}" fill="#ecf0f1" />`;
+        for (let j = 0; j <= i; j++) svg += `<path d="${charData.strokes[j]}" fill="#2c3e50" />`;
+        
+        svg += `</g></svg>`;
+        stepBox.innerHTML = svg;
+        
+        // CORRECTION : On ajoute la case dans sa ligne horizontale (decompRow), pas dans le conteneur global !
+        decompRow.appendChild(stepBox);
+      }
+    }).catch(function(err) {
+      console.error("Données de tracé introuvables pour : " + char, err);
+    });
   });
   
-  // 4. Fonction pour enchaîner le mode Quiz caractère par caractère
-  function startQuizForChar(index) {
-    // Si on a dépassé le dernier caractère, le mot entier est réussi !
-    if (index >= writers.length) {
-      setTimeout(nextTrace, 1000); // Passe au mot suivant de la liste[cite: 2]
-      return;
-    }
+  // Lancement du quiz interactif sur le premier caractère
+  startNextCharQuiz();
+}
+
+function startNextCharQuiz() {
+  if (currentCharQuizIndex < currentWriters.length) {
+    // Met en valeur la case à tracer
+    currentWriters.forEach(w => w.element.classList.remove('active-quiz'));
+    currentWriters[currentCharQuizIndex].element.classList.add('active-quiz');
     
-    // Sinon, on lance le quiz sur le caractère actuel[cite: 2]
-    writers[index].quiz({
+    // Lance le mode interactif (Quiz)[cite: 1, 7]
+    currentWriters[currentCharQuizIndex].instance.quiz({
       onComplete: function() {
-        // Dès qu'il est fini, on lance automatiquement le quiz du caractère suivant
-        startQuizForChar(index + 1);
+        currentWriters[currentCharQuizIndex].element.classList.remove('active-quiz');
+        currentCharQuizIndex++;
+        
+        // Passe à la lettre suivante ou au mot suivant[cite: 7]
+        if (currentCharQuizIndex < currentWriters.length) {
+          setTimeout(startNextCharQuiz, 300);
+        } else {
+          setTimeout(nextTrace, 1000);
+        }
       }
     });
-  }
-  
-  // 5. On déclenche le quiz sur le tout premier caractère du mot
-  if (writers.length > 0) {
-    startQuizForChar(0);
   }
 }
 

@@ -67,8 +67,7 @@ function openModule(index, title, count) {
 
   if (currentModule && currentModule.vocItems) {
     currentModule.vocItems.forEach(item => {
-      const charKey = item.hanzi || item.traditional;
-      const wordStats = stats[charKey] || { success: 0, fail: 0 };
+      const wordStats = stats[item.hanzi] || { success: 0, fail: 0 };
       const totalAttempts = wordStats.success + wordStats.fail;
       
       moduleSuccess += wordStats.success;
@@ -77,7 +76,6 @@ function openModule(index, title, count) {
       let colorClass = '';
       let percentage = 0;
       
-      // Logique des couleurs
       if (totalAttempts > 0) {
         percentage = Math.round((wordStats.success / totalAttempts) * 100);
         if (wordStats.fail > wordStats.success) {
@@ -87,17 +85,30 @@ function openModule(index, title, count) {
         }
       }
 
-      // ATTENTION : Ce sont bien des backticks (`) autour du HTML, pas des apostrophes !
+      // --- NOUVELLE LOGIQUE DE DÉCOUPAGE ---
+      const chars = Array.from(item.hanzi || item.traditional);
+      const pinyins = (item.pinyin || '').split(' ');
+      
+      let charPairsHtml = `<div class="vocab-chinese-block">`;
+      chars.forEach((char, idx) => {
+        const py = pinyins[idx] || '';
+        charPairsHtml += `
+          <div class="vocab-char-pair">
+            <div class="vocab-py">${py}</div>
+            <div class="vocab-hz ${colorClass}">${char}</div>
+          </div>
+        `;
+      });
+      charPairsHtml += `</div>`;
+
+      // --- INJECTION HTML MISE À JOUR ---
       vocabContainer.innerHTML += `
         <div class="vocab-item">
           
-          <div class="vocab-chinese-block">
-            <div class="vocab-pinyin-top">${item.pinyin || ''}</div>
-            <div class="vocab-hanzi ${colorClass}">${charKey}</div>
-          </div>
+          ${charPairsHtml}
           
           <div class="vocab-details">
-            <div class="vocab-translation">${item.translation || ''}</div>
+            <div class="vocab-translation">${item.translation}</div>
           </div>
           
           <div class="vocab-stats">

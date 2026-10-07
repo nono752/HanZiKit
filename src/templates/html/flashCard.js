@@ -1,30 +1,27 @@
-// 1. Lancer le mode flashcard pour un module spécifique
 function startFlashcards() {
+  if (currentModuleIndex < 0 || !DECK_DATA.modules[currentModuleIndex]) return;
   const mod = DECK_DATA.modules[currentModuleIndex];
+  
   if (!mod.vocItems || mod.vocItems.length === 0) {
     alert("Aucun vocabulaire dans ce module.");
     return;
   }
 
-  // Initialisation de la file d'attente
   fcQueue = [...mod.vocItems];
-  // Optionnel : fcQueue.sort(() => Math.random() - 0.5); // Mélanger
   fcCurrentIndex = 0;
   
   document.getElementById('fc-title').textContent = "Flashcards : " + mod.title;
   
-  // Bascule d'affichage
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-flashcards').classList.add('active');
   
   loadCurrentCard();
 }
 
-// 2. Charger les données sur la carte
 function loadCurrentCard() {
   if (fcCurrentIndex >= fcQueue.length) {
     alert("Module terminé !");
-    returnToModule();
+    returnToModule(); // Retour automatique au module[cite: 1]
     return;
   }
 
@@ -35,62 +32,67 @@ function loadCurrentCard() {
   document.getElementById('fc-pinyin').textContent = item.pinyin || "--";
   document.getElementById('fc-translation').textContent = item.translation || "--";
 
-  // Réinitialiser l'état visuel
-  isCardFlipped = false;
-  document.getElementById('fc-inner').classList.remove('is-flipped');
-  document.getElementById('fc-controls').style.display = 'none';
+  // Réinitialiser les 3 champs (remettre les masques)
+  document.querySelectorAll('.fc-reveal-field').forEach(field => {
+    field.classList.remove('revealed');
+  });
 }
 
-// 3. Retourner la carte
-function flipCard() {
-  if (isCardFlipped) return; // Empêche de recliquer si déjà retournée
-  
-  isCardFlipped = true;
-  document.getElementById('fc-inner').classList.add('is-flipped');
-  
-  // Afficher les boutons d'évaluation après l'animation
+// Révéler un champ spécifique au clic
+function revealField(element) {
+  element.classList.add('revealed');
+}
+
+// Passer la carte sans enregistrer de score
+function skipCard() {
+  // 1. On remet les masques immédiatement
+  document.querySelectorAll('.fc-reveal-field').forEach(field => {
+    field.classList.remove('revealed');
+  });
+
+  // 2. On attend la fin de la transition CSS (200ms) pour changer les données
   setTimeout(() => {
-    document.getElementById('fc-controls').style.display = 'flex';
-  }, 300);
+    fcCurrentIndex++;
+    loadCurrentCard();
+  }, 200);
 }
 
-// 4. Évaluer et passer à la suivante
+// Lire l'audio pour la carte actuelle[cite: 2]
+function speakFlashcardHanzi() {
+  const item = fcQueue[fcCurrentIndex];
+  const utterance = new SpeechSynthesisUtterance(item.hanzi || item.traditional);
+  utterance.lang = 'zh-CN';
+  utterance.rate = 0.85;
+  window.speechSynthesis.speak(utterance);
+}
+
+// Enregistrer le score et passer à la suivante[cite: 1]
 function nextCard(isSuccess) {
   const item = fcQueue[fcCurrentIndex];
   const charKey = item.hanzi || item.traditional;
   
-  // Sauvegarde dans le localStorage
-  let stats = JSON.parse(localStorage.getItem('HanZiKit_stats') || '{}');
+  // Sauvegarde sécurisée dans le localStorage[cite: 1]
+  let stats = {};
+  try {
+    stats = JSON.parse(localStorage.getItem('hanziforge_stats') || '{}');
+  } catch (e) {}
+  
   if (!stats[charKey]) stats[charKey] = { success: 0, fail: 0 };
+  if (isSuccess) stats[charKey].success++;
+  else stats[charKey].fail++;
   
-  if (isSuccess) {
-    stats[charKey].success++;
-  } else {
-    stats[charKey].fail++;
-  }
-  localStorage.setItem('HanZiKit_stats', JSON.stringify(stats));
+  try {
+    localStorage.setItem('hanziforge_stats', JSON.stringify(stats));
+  } catch (e) {}
 
-  // Mot suivant
-  fcCurrentIndex++;
-  loadCurrentCard();
-}
+  // 1. On remet les masques immédiatement
+  document.querySelectorAll('.fc-reveal-field').forEach(field => {
+    field.classList.remove('revealed');
+  });
 
-function saveWordStat(hanzi, isSuccess) {
-  // On récupère les stats existantes ou on crée un objet vide[cite: 1]
-  let stats = JSON.parse(localStorage.getItem('HanZiKit_stats') || '{}');
-  
-  // Initialisation du mot s'il n'existe pas encore
-  if (!stats[hanzi]) {
-    stats[hanzi] = { success: 0, fail: 0 };
-  }
-  
-  // Incrémentation
-  if (isSuccess) {
-    stats[hanzi].success++;
-  } else {
-    stats[hanzi].fail++;
-  }
-  
-  // Sauvegarde dans le cache du navigateur[cite: 1]
-  localStorage.setItem('HanZiKit_stats', JSON.stringify(stats));
+  // 2. On attend 200ms pour que tout soit caché avant d'afficher la carte suivante
+  setTimeout(() => {
+    fcCurrentIndex++;
+    loadCurrentCard();
+  }, 200);
 }

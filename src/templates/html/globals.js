@@ -8,4 +8,5 @@ let isCardFlipped = false;
 
 // trace
 let currentTraceIndex = 0;
-let writer = null;
+let currentWriters = [];
+let currentCharQuizIndex = 0;

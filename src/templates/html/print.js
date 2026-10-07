@@ -1,6 +1,13 @@
 function printGlobalVocab() {
   const printZone = document.getElementById('print-zone');
-  let html = `<h1 class="print-title"> ${DECK_DATA.title}</h1>`;
+  const today = new Date().toLocaleDateString();
+  let html = `
+    <div class="print-header-custom">
+      <div class="print-header">${today}</div>
+      <div class="print-header"> HanZiKit</div>
+    </div>
+    <h1 class="print-title"> ${DECK_DATA.title}</h1>`;
+
   html += `<table class="print-table">
             <thead>
               <tr>
@@ -75,20 +82,39 @@ function printModuleVocab() {
 
 // Générateur HTML pour une collection d'items
 function buildGridSheetHtml(title, items, totalBoxes = 12, wordGuideRepetitions = 2) {
-  let html = `<h1 class="print-title">${title}</h1><div class="print-grid-container">`;
+  const today = new Date().toLocaleDateString();
+  let html = `
+    <div class="print-header-custom">
+      <div class="print-header">${today}</div>
+      <div class="print-header"> HanZiKit</div>
+    </div>
+    <h1 class="print-title">${title}</h1><div class="print-grid-container">`;
 
   items.forEach(item => {
-    // Array.from gère mieux les caractères complexes UTF-8 que split('')
     const chars = Array.from(item.hanzi || item.traditional);
+    // On découpe le pinyin en utilisant l'espace généré par ton outil C++
+    const pinyins = (item.pinyin || '').split(' '); 
     const wordLen = chars.length;
+
+    // Nouvelle structure : un conteneur parent Flexbox
+    let charInfoHtml = `<div class="print-char-info">`;
+    
+    // On crée une sous-colonne pour chaque paire Pinyin/Hanzi
+    chars.forEach((char, idx) => {
+      const py = pinyins[idx] || ''; // Sécurité si un pinyin manque
+      charInfoHtml += `
+        <div class="char-pair">
+          <div class="sub-pinyin">${py}</div>
+          <div class="main-char">${char}</div>
+        </div>
+      `;
+    });
+    
+    charInfoHtml += `</div>`;
 
     html += `
       <div class="print-grid-row">
-        <div class="print-char-info">
-          <!-- Le pinyin est désormais placé AU-DESSUS du mot -->
-          <div class="sub-pinyin">${item.pinyin || ''}</div>
-          <div class="main-char">${item.hanzi || item.traditional}</div>
-        </div>
+        ${charInfoHtml}
         <div class="tzg-container">`;
 
     for (let i = 0; i < totalBoxes; i++) {
@@ -119,7 +145,7 @@ function printGlobalGrid() {
   });
 
   const printZone = document.getElementById('print-zone');
-  printZone.innerHTML = buildGridSheetHtml(`Grilles d'écriture - ${DECK_DATA.title}`, allItems);
+  printZone.innerHTML = buildGridSheetHtml(`${DECK_DATA.title}`, allItems);
   window.print();
 }
 
@@ -129,6 +155,6 @@ function printModuleGrid() {
   const mod = DECK_DATA.modules[currentModuleIndex];
   
   const printZone = document.getElementById('print-zone');
-  printZone.innerHTML = buildGridSheetHtml(`Grille : ${mod.title}`, mod.vocItems || []);
+  printZone.innerHTML = buildGridSheetHtml(`${mod.title}`, mod.vocItems || []);
   window.print();
 }
