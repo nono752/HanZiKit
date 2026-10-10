@@ -24,7 +24,7 @@ bool parseString(const std::string& source, ParseResult& context)
 TEST(ParserTest, ValidCompleteAST)
 {
     std::string src = 
-        "# HSK 1\n"
+        "# HSK #1\n" // token downgrading
         "## Animals\n"
         "猫 | mao1 | cat\n"
         "狗 | gou3 | dog\n"
@@ -39,7 +39,7 @@ TEST(ParserTest, ValidCompleteAST)
     EXPECT_TRUE(result.errors.empty()) << "Shouldn't have errors";
 
     // check main page
-    EXPECT_EQ(result.ast.title, "HSK 1");
+    EXPECT_EQ(result.ast.title, "HSK #1");
     ASSERT_EQ(result.ast.modules.size(), 4);
 
     // check module 1
@@ -79,7 +79,7 @@ TEST(ParserTest, ErrorMultipleMainPages)
     EXPECT_EQ(result.errors[0].details, "Title");
 }
 
-TEST(ParserTest, ErrorMissingModuleTitleOrUnexpectedSymbol) 
+TEST(ParserTest, ErrorMissingModuleTitle) 
 {
     std::string src = 
         "###\n" // Lexer generate the tokens: ## # \n
@@ -88,16 +88,13 @@ TEST(ParserTest, ErrorMissingModuleTitleOrUnexpectedSymbol)
 
     ParseResult result;
     ASSERT_TRUE(parseString(src, result)) << "There is lexer errors";
-    ASSERT_EQ(result.errors.size(), 3);
+    ASSERT_EQ(result.errors.size(), 2);
 
-    EXPECT_EQ(result.errors[0].code, ErrorCode::UNEXPECTED_SYMBOL);
-    EXPECT_EQ(result.errors[0].details, "#");
+    EXPECT_EQ(result.errors[0].code, ErrorCode::MISSING_TITLE);
+    EXPECT_EQ(result.errors[0].details, "\n");
 
     EXPECT_EQ(result.errors[1].code, ErrorCode::MISSING_TITLE);
-    EXPECT_EQ(result.errors[1].details, "\n");
-
-    EXPECT_EQ(result.errors[2].code, ErrorCode::MISSING_TITLE);
-    EXPECT_EQ(result.errors[2].details, "EOF");
+    EXPECT_EQ(result.errors[1].details, "EOF");
 }
 
 TEST(ParserTest, ErrorMissingSeparator)

@@ -49,9 +49,6 @@ void ErrorHandler::lexerPhaseHandler(const Error& err)
 
     switch (err.code) 
     {
-        case ErrorCode::UNKNOWN_CHAR_ENCOUNTERED:
-            message = std::format("unknown char '{}' encountered.", err.details);
-            break;
         case ErrorCode::SOURCE_FILE_NOPEN:
             message = std::format("couldn't open source file '{}'.", err.details);
             break;
@@ -93,7 +90,7 @@ void ErrorHandler::parserPhaseHandler(const Error& err)
             message = std::format("Missing pinyin for the entry '{}'.", err.details);
             break;
         case ErrorCode::NO_INSTRUCTION:
-            message = "Empty instruction or missing data.";
+            message = std::format("Empty instruction or missing data at '{}'.", err.details);
             break;
         case ErrorCode::UNKNOWN_PARSER_ERROR:
         default:

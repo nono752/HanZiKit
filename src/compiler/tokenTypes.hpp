@@ -9,9 +9,11 @@ enum TokenType
 {
     TEXT,
     HANZI, // it is an utf8 but not guaranted to be chinese character
-    SPECIAL_CHAR,
-    NEWLINE,
-    UNKNOWN_CHAR
+    TITLE_MARKER,
+    MODULE_MARKER,
+    SEPARATOR_MARKER,
+    EXAMPLE_MARKER,
+    NEWLINE
 };
 
 struct Pos

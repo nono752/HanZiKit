@@ -77,9 +77,10 @@ class Compiler
 
             for (auto e : tokens)
             {
+                std::string_view data = e.data == "\n" ? "newline" : e.data;
                 std::cout << count << " :" 
                     << " type = " << e.type
-                    << " ,data = " << e.data
+                    << " ,data = " << data
                     << " ,pos = (" << e.line << "," << e.col << ")" 
                     << std::endl;
 

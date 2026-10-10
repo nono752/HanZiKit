@@ -39,8 +39,8 @@ int main(int argc, char* argv[])
 
         compiler.generateJSON();
         if (!compiler.printAndClearErrors()) std::cerr << "json succesfully generated..." << std::endl;
-        //compiler._printJSON();
         else return 1;
+        //compiler._printJSON();
 
         compiler.generateHtml();
         if (!compiler.printAndClearErrors()) std::cerr << "html file successfully generated..." << std::endl;

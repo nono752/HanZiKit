@@ -82,6 +82,7 @@ struct Internal_LexerReader
 };
 
 static bool isSpace(char c) { return c == ' ' || c == '\t' || c == '\r'; }
+static bool isSpecial(char c) { return c == '\n' || c == '#' || c == '|' || c == '>'; }
 
 Tokens tokenize(const std::string& file, Errors& errors)
 {
@@ -106,50 +107,39 @@ Tokens tokenize(const std::string& file, Errors& errors)
                 tokens.push_back(reader.makeToken(TokenType::NEWLINE));
                 break;
 
-            case '|': case '>':
-                tokens.push_back(reader.makeToken(TokenType::SPECIAL_CHAR));
+            case '|':
+                tokens.push_back(reader.makeToken(TokenType::SEPARATOR_MARKER));
                 break;
 
-            case '#':
+            case '#':  case '>':
                 if (reader.peek() == '#')
+                {
                     reader.advance();
-                tokens.push_back(reader.makeToken(TokenType::SPECIAL_CHAR));
+                    tokens.push_back(reader.makeToken(TokenType::MODULE_MARKER));
+                }
+                else
+                    tokens.push_back(reader.makeToken(TokenType::TITLE_MARKER));
+
                 break;
 
             default:
                 unsigned char currentUChar = static_cast<unsigned char>(c);
-
                 unsigned char whatKindOfText = 0;
-                if (currentUChar > 127) whatKindOfText = 2;
-                else if (isalnum(currentUChar)) whatKindOfText = 1;
 
-                if (whatKindOfText > 0)
+                while (!reader.isAtEnd() && !isSpecial(reader.peek()) && !isSpace(reader.peek()))
                 {
-                    while (!reader.isAtEnd())
-                    {
-                        unsigned char nextUChar = static_cast<unsigned char>(reader.peek());
+                    if (currentUChar > 127)
+                        whatKindOfText |= 2;
+                    else 
+                        whatKindOfText |= 1;
 
-                        if (isalnum(nextUChar))
-                            whatKindOfText |= 1;
-                        else if (nextUChar > 127)
-                            whatKindOfText |= 2;
-                        else 
-                            break;
-                        
-                        reader.advance();
-                    }   
+                    currentUChar = static_cast<unsigned char>(reader.advance());
+                }
                     
-                    // if only utf8 considerated as hanzi, if only alnum or mixed considerated as text
-                    TokenType type = whatKindOfText == 2 ? TokenType::HANZI : TokenType::TEXT;
+                // if only utf8: considerated as hanzi, if only alnum or mixed: considerated as text
+                TokenType type = whatKindOfText == 2 ? TokenType::HANZI : TokenType::TEXT;
+                tokens.push_back(reader.makeToken(type));
 
-                    tokens.push_back(reader.makeToken(type));
-                }
-                else
-                {
-                    // TODO: implement behavior when unknown char encoutered
-                    errors.push_back({ErrorPhase::LEXER, ErrorCode::UNKNOWN_CHAR_ENCOUNTERED, std::string(1, c), reader.line, reader.col});
-                    tokens.push_back(reader.makeToken(TokenType::UNKNOWN_CHAR));
-                }
                 break;
         }
     }

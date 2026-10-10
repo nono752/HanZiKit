@@ -3,7 +3,6 @@
 #include "error_handling/errorTypes.hpp"
 #include <string_view>
 #include <vector>
-#include <iostream>
 
 void Parser::pushErrorAndSynchronize(ErrorCode err, std::string_view detail)
 {
@@ -28,25 +27,6 @@ void Parser::pushErrorAndSynchronize(ErrorCode err, std::string_view detail)
     synchronize();
 }
 
-std::string_view Parser::getTextSequence()
-{
-    const Token* firstTok = peek();
-    if (!firstTok || (firstTok->type != TokenType::TEXT && firstTok->type != TokenType::HANZI))
-        return {};
-
-    const Token* lastTok = nullptr;
-    while (peek() && (peek()->type == TokenType::TEXT || peek()->type == TokenType::HANZI))
-    {
-        lastTok = advance();
-    }
-
-    const char* start = firstTok->data.data();
-    const char* end = lastTok->data.data() + lastTok->data.size();
-    size_t size = end - start;
-
-    return std::string_view(start, size);
-}
-
 void Parser::parseTitle(bool isMainPage)
 {
     if (isMainPage && !ast.title.empty()) 
@@ -55,16 +35,11 @@ void Parser::parseTitle(bool isMainPage)
         return;
     }
         
-    std::string_view title = getTextSequence();
+    std::string_view title = consumeTo<TokenType::NEWLINE>();
     
-    if (title.empty() && (NextTokenIsNewline() || isAtEnd())) 
+    if (title.empty() && (isAtEnd() || NextTokenIsNewline())) 
     {
         pushErrorAndSynchronize(ErrorCode::MISSING_TITLE);
-        return;
-    }
-    else if (!NextTokenIsNewline() && !isAtEnd())
-    {
-        pushErrorAndSynchronize(ErrorCode::UNEXPECTED_SYMBOL);
         return;
     }
         
@@ -83,24 +58,25 @@ void Parser::parseTitle(bool isMainPage)
 
 std::string_view Parser::extractPinyin()
 {
-    std::string_view pinyin = getTextSequence();
+    std::string_view pinyin = consumeTo<TokenType::SEPARATOR_MARKER, TokenType::NEWLINE>();
     if (pinyin.empty())
     {
         pushErrorAndSynchronize(ErrorCode::MISSING_PINYIN);
         return "";
     }
-    else if (!NextTokenIsSeparator())
+
+    if (!NextTokenIsSeparator())
     {
         pushErrorAndSynchronize(ErrorCode::MISSING_SEPARATOR);
         return "";
     }
     advance();
-
+    
     return pinyin;
 }
 std::string_view Parser::extractTranslation()
 {
-    std::string_view trad = getTextSequence();
+    std::string_view trad = consumeTo<TokenType::NEWLINE>();
     if (trad.empty())
     {
         pushErrorAndSynchronize(ErrorCode::MISSING_TRANSLATION);
@@ -155,9 +131,9 @@ void Parser::parseLine()
 
     if (!first || first->type == TokenType::NEWLINE) return;
 
-    if (first->type == TokenType::SPECIAL_CHAR && first->data == "#")
+    if (first->type == TokenType::TITLE_MARKER)
         parseTitle(true); // mainPage = true
-    else if (first->type == TokenType::SPECIAL_CHAR && first->data == "##")
+    else if (first->type == TokenType::MODULE_MARKER)
         parseTitle(false);
     else if (first->type == TokenType::HANZI)
         parseVocItem(*first); // TODO: parse sentence in vocItemSection

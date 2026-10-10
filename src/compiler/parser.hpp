@@ -15,6 +15,15 @@ class Parser
         Module* currentModule = nullptr;
         Errors& errors;
 
+    public:
+        Parser(const Tokens& t, MainPage& origin, Errors& err) : tokens(t), ast(origin), errors(err) {}
+        void parse() 
+        {
+            while (!isAtEnd())
+                parseLine();
+        }
+
+    private:
         bool isAtEnd() const { return current >= tokens.size(); }
         const Token* peek() const 
         {
@@ -32,17 +41,9 @@ class Parser
                 advance();
         }
 
-    public:
-        Parser(const Tokens& t, MainPage& origin, Errors& err) : tokens(t), ast(origin), errors(err) {}
-        void parse() 
-        {
-            while (!isAtEnd())
-                parseLine();
-        }
-
-    private:
         void pushErrorAndSynchronize(ErrorCode err, std::string_view detail = "");
-        std::string_view getTextSequence();
+        template <TokenType... Stop>
+        std::string_view consumeTo();
         
         void parseTitle(bool isMainPage);
 
@@ -54,12 +55,29 @@ class Parser
 
         bool NextTokenIsSeparator() const
         {
-            return peek() && peek()->type == TokenType::SPECIAL_CHAR && peek()->data == "|";
+            return peek() && peek()->type == TokenType::SEPARATOR_MARKER;
         }
         bool NextTokenIsNewline() const
         {
             return peek() && peek()->type == TokenType::NEWLINE;
         }
 };
+
+template <TokenType... Stop>
+std::string_view Parser::consumeTo()
+{
+    const Token* firstTok = peek();
+    if (!firstTok || (... || (firstTok->type == Stop))) return {};
+
+    const Token* lastTok = nullptr;
+    while (peek() && !(... || (peek()->type == Stop)))
+        lastTok = advance();
+
+    const char* start = firstTok->data.data();
+    const char* end = lastTok->data.data() + lastTok->data.size();
+    size_t size = end - start;
+
+    return std::string_view(start, size);
+}
 
 #endif

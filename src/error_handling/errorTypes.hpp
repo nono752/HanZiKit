@@ -8,7 +8,6 @@
 enum class ErrorCode 
 {
     // lexer errors 000 - 099
-    UNKNOWN_CHAR_ENCOUNTERED = 000,
     SOURCE_FILE_NOPEN = 001,
     STRING_BUFFER_WRITING_FAILED = 002,
 
